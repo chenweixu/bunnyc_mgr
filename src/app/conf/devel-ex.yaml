@@ -1,0 +1,101 @@
+---
+sms_conf:
+  url: http://10.2.1.5:8080/LocalSmsService/smsService?wsdl
+  passwd: password
+
+#===================================================================
+
+log_level: 10
+
+user_info:
+  ssh_port: 22
+  default_user: work
+  work:
+    ssh_key: devel.key
+  weblogic:
+    ssh_key: devel.key
+
+service_info:
+  memcached:
+    start_cmd: /opt/app/memcached/bin/memcached -d -u work -m 52 -c 1000 -p mc_port -P mc_pidfile
+    stop_cmd: kill $(cat mc_pidfile)
+    pidfile: /opt/app/memcached/1111.pid
+    cd: ['10.2.1.67 21101','10.2.1.67 21102','10.2.1.67 21103','10.2.1.68 21101','10.2.1.68 21102','10.2.1.68 21103']
+    dmz: ['10.2.1.67 21101','10.2.1.67 21102','10.2.1.67 21103','10.2.1.68 21101','10.2.1.68 21102','10.2.1.68 21103']
+  nginx:
+    start_cmd: /opt/nginx/sbin/nginx
+    stop_cmd: /opt/nginx/sbin/nginx -s stop
+    reload_cmd: /opt/nginx/sbin/nginx -s reload
+    nginx_access_log: /opt/nginx/logs/access.log
+    nginx_error_log: /opt/nginx/logs/error.log
+    checkcurl: nginx_status
+    checkport: 18001
+    dmz: ['10.2.1.67','10.2.1.68']
+    cd: ['10.2.1.67','10.2.1.68']
+  weblogic:
+    start_cmd: /weblogic/domains/work_domain/start_script/start_work1.sh
+    stop_cmd: /weblogic/domains/work_domain/start_script/stop_work1.sh
+    log_access: /weblogic/wlslogs/work_domain/work1/access.log
+    log_out: /weblogic/wlslogs/work_domain/work1/work1.out
+    weblogic_interface: /services/Activate?wsdl
+  metaq:
+    start_cmd: source ~/.bash_profile && nohup /weblogic/taobao/metamorphosis-server-wrapper/bin/metaServer.sh start >> /weblogic/metaServerStart.log 2>&1
+    stop_cmd:  source ~/.bash_profile && /weblogic/taobao/metamorphosis-server-wrapper/bin/metaServer.sh stop
+  encryption:
+    start_cmd:
+    stop_cmd: kill -9 $(ps -ef | grep trustwork140)
+  zookeeper:
+    start_cmd: /weblogic/zookeeper-3.4.5/bin/zkServer.sh start
+    stop_cmd:  /weblogic/zookeeper-3.4.5/bin/zkServer.sh stop
+#===================================================================
+
+app_group:
+  dmz1:
+    10.2.1.67: ['17101','17102','17103','17104','17105','17106']
+    10.2.1.68: ['17101','17102','17103','17104','17105','17106']
+
+  dmz2:
+    10.2.1.67: ['17101','17102','17103','17104','17105','17106']
+    10.2.1.68: ['17101','17102','17103','17104','17105','17106']
+  dmz3:
+    10.2.1.67: ['17101','17102','17103','17104','17105','17106']
+    10.2.1.68: ['17101','17102','17103','17104','17105','17106']
+  cd1:
+    10.2.1.67: ['17101','17102','17103','17104','17105','17106']
+    10.2.1.68: ['17101','17102','17103','17104','17105','17106']
+  cd2:
+    10.2.1.67: ['17101','17102','17103','17104','17105','17106']
+    10.2.1.68: ['17101','17102','17103','17104','17105','17106']
+  log:
+    10.2.1.67: ['17101','17102','17103','17104','17105','17106']
+    10.2.1.68: ['17101','17102','17103','17104','17105','17106']
+#===================================================================
+
+host_mgr_type:
+  app_cd:
+    - 10.2.1.67
+    - 10.2.1.68
+
+  app_dmz:
+    - 10.2.1.67
+    - 10.2.1.68
+
+  web_cd:
+    - 10.2.1.67
+    - 10.2.1.68
+
+  web_dmz:
+    - 10.2.1.67
+    - 10.2.1.68
+
+  app_log:
+    - 10.2.1.67
+    - 10.2.1.68
+
+  memcached:
+    - 10.2.1.67
+    - 10.2.1.68
+
+  mysql:
+    - 10.2.1.67
+    - 10.2.1.68
