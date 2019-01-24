@@ -4,9 +4,9 @@ import requests
 import itertools
 import re
 from multiprocessing import Pool
-from app.main.memcached import Memcached
+from app.main.util.memcached import Memcached
 from app.main.conf import conf_data
-from app.main.mylog import My_log
+from app.main.util.mylog import My_log
 from app.main.hostshell import HostBaseCmd
 from app.main.hostshell import HostGroupCmd
 from app.main.web import CheckWebInterface

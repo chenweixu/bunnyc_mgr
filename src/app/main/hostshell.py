@@ -1,6 +1,6 @@
-from app.main.ssh import Myssh
+from app.main.util.ssh import Myssh
+from app.main.util.mylog import My_log
 from app.main.conf import conf_data
-from app.main.mylog import My_log
 from multiprocessing import Pool
 
 logfile = conf_data("work_log")
@@ -12,14 +12,12 @@ class HostBaseCmd(Myssh):
     """docstring for HostBaseCmd"""
 
     def __init__(self, ip, user=None, scp=None):
-        userinfo = conf_data("user_info")
         if not user:
             ssh_user = conf_data("user_info", "default_user")
         else:
             ssh_user = user
-
-        ssh_pw = conf_data("user_info", ssh_user, "ssh_passwd")
-        key = conf_data("user_info", ssh_user, "ssh_key")
+        ssh_pw = conf_data("user_info", str(ssh_user), "ssh_passwd")
+        key = conf_data("user_info", str(ssh_user), "ssh_key")
         ssh_port = conf_data("user_info", "ssh_port")
         self.ip = ip
 
@@ -77,6 +75,7 @@ class HostBaseCmd(Myssh):
             return False
 
     def runtask(self, cmd=None, task=None):
+        work_log.info(str(task))
         if task and not cmd:
             if task == "disk":
                 cmd = "df -h"

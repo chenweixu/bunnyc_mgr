@@ -1,0 +1,64 @@
+methods: post
+
+'obj': 'monitor',
+'content': {}
+
+# 功能
+支持单主机全量最新信息
+支持单主机指定类型最新信息
+支持单主机指定时间段内的指定类型信息
+指定组，指定类型最新信息
+指定组，指定类型,指定时间段
+
+支持查看某个服务健康状态
+支持查看某一组服务健康状态
+
+
+# 主机类
+CPU使用率
+内存使用率
+磁盘使用率
+网卡流量
+
+unit: [cpu, mem, ld_1, ld_5, ld_15, disk]
+
+1. 支持单主机全量最新信息
+type: 'host'
+unit: 'all'
+ip: '10.2.1.5'
+
+2. 支持单主机指定类型最新信息
+type: 'host'
+unit: 'cpu'
+ip: '10.2.1.5'
+
+3. 支持单主机指定时间段内的指定类型信息
+type: 'host'
+unit: 'cpu'
+ip: '10.2.1.5'
+start_time:
+end_time:
+
+4. 指定组，的指定类型最新信息
+type: 'host'
+unit: 'cpu'
+group: 'dmz'
+
+5. 指定组，指定类型,指定时间段
+type: 'host'
+unit: 'cpu'
+group: 'dmz'
+start_time:
+end_time:
+
+====================================================================
+
+1. 支持查看某个服务健康状态
+type: 'service'
+unit: 'nginx'
+ip: '10.2.1.5'
+
+2. 支持查看某一组服务健康状态
+type: 'service'
+unit: 'nginx'
+group: 'dmz'

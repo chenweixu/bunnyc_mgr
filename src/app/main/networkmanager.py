@@ -4,7 +4,7 @@ import telnetlib
 import socket
 from multiprocessing.dummy import Pool as ThreadPool
 from app.main.conf import conf_data
-from app.main.mylog import My_log
+from app.main.util.mylog import My_log
 
 logfile = conf_data("work_log")
 log_evel = conf_data("log_level")

@@ -1,28 +1,29 @@
-from app.main.mylog import My_log
+from app.main.util.mylog import My_log
 from app.main.networkmanager import NetworkManager
 from app.main.hostshell import HostBaseCmd
+from app.main.conf import conf_data
 
 logfile = conf_data("work_log")
 log_evel = conf_data("log_level")
 work_log = My_log(logfile, log_evel).get_log()
 
 
-class Network(object):
-    """docstring for Network"""
+class NetWork(object):
+    """docstring for NetWork"""
     def __init__(self):
-        super(Network, self).__init__()
+        super(NetWork, self).__init__()
 
-    def ping(ipaddr):
+    def ping(self, ipaddr):
         info = NetworkManager()
         data = info.local_ping(ipaddr)
         work_log.info(str(data))
         return data
 
-    def run_task(data):
+    def run_task(self, data):
         task = data.get("task")
         work_log.debug(str(data))
         if task == "check_port":
-            source_ip = data.get("sip")
+            source_ip = data.get("client")
             des_ip = data.get("ip")
             des_port = data.get("port")
 

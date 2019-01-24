@@ -1,0 +1,19 @@
+methods: get
+
+1. ping 响应
+/api/v2/network&host=10.2.1.5
+
+==============================================================================
+
+methods: post
+
+'obj': 'network',
+'content': {
+}
+
+
+1. 端口探测
+task: check_port
+ip:
+port：
+client: 127.0.0.1

@@ -9,7 +9,7 @@ import requests
 
 app_url = "http://10.2.1.5:9002"
 
-showsysteminfo_url = app_url + "/api/v1/showsysteminfo"
+host_url = app_url + "/api/v2/host"
 hostcmd_url = app_url + "/api/v1/hostcmd"
 network_url = app_url + "/api/v1/network"
 weblogic_url = app_url + "/api/v1/weblogic"
@@ -26,52 +26,51 @@ class ShowSysTemInfo(object):
     def __init__(self):
         super(ShowSysTemInfo, self).__init__()
 
-    def post(self, mess):
+    def post(self, unit):
+        mess = {
+            "key": "c1c2",
+            "obj": "host",
+            "content": {
+                "task": "remote", "ip": "10.2.1.67", "unit": unit
+            }
+        }
         r = requests.post(
-            showsysteminfo_url, data=json.dumps(mess), headers=json_headers
+            host_url, data=json.dumps(mess), headers=json_headers
         )
         print("http status--------->> %s" % r.status_code)
         print(r.text)
 
     def disk(self):
         print(">>ShowSysTemInfo system info: disk")
-        mess = {"des_ip": "10.2.1.67", "task": "disk"}
-        self.post(mess)
+        self.post('disk')
 
     def mem(self):
         print(">>ShowSysTemInfo system info: mem")
-        mess = {"des_ip": "10.2.1.67", "task": "mem"}
-        self.post(mess)
+        self.post('mem')
 
     def netlistening(self):
         print(">>ShowSysTemInfo system info: netlist")
-        mess = {"des_ip": "10.2.1.67", "task": "netlistening"}
-        self.post(mess)
+        self.post('netlistening')
 
     def netss(self):
         print(">>ShowSysTemInfo system info: netss")
-        mess = {"des_ip": "10.2.1.67", "task": "netss"}
-        self.post(mess)
+        self.post('netss')
 
     def uptime(self):
         print(">>ShowSysTemInfo system info: uptime")
-        mess = {"des_ip": "10.2.1.67", "task": "uptime"}
-        self.post(mess)
+        self.post('uptime')
 
     def netrxtx(self):
         print(">>ShowSysTemInfo system info: netrxtx")
-        mess = {"des_ip": "10.2.1.67", "task": "netrxtx"}
-        self.post(mess)
+        self.post('netrxtx')
 
     def vmstat(self):
         print(">>ShowSysTemInfo system info: vmstart")
-        mess = {"des_ip": "10.2.1.67", "task": "vmstat"}
-        self.post(mess)
+        self.post('vmstat')
 
     def cpu(self):
         print(">>ShowSysTemInfo system info: cpu")
-        mess = {"des_ip": "10.2.1.67", "task": "cpu"}
-        self.post(mess)
+        self.post('cpu')
 
 
 class HostManagerhostcmd(object):
@@ -81,19 +80,32 @@ class HostManagerhostcmd(object):
         super(HostManagerhostcmd, self).__init__()
 
     def post(self, mess):
-        r = requests.post(hostcmd_url, data=json.dumps(mess), headers=json_headers)
+        r = requests.post(host_url, data=json.dumps(mess), headers=json_headers)
         print("http status--------->> %s" % r.status_code)
         print(r.text)
         return r.status_code
 
     def uptime(self):
         print(">> HostManagerhostcmd wait user network cmd: uptime")
-        mess = {"des_ip": "10.2.1.67", "user": "wait", "cmd": "uptime"}
+        mess = {
+            "key": "c1c2",
+            "obj": "host",
+            "content": {
+                "task": "remote", "ip": "10.2.1.67", "cmd": "uptime"
+            }
+        }
         self.post(mess)
 
     def nowait(self):
         print(">> HostManagerhostcmd no wait user network cmd: uptime")
-        mess = {"des_ip": "10.2.1.67", "user": "weblogic", "cmd": "uptime"}
+        mess = {
+            "key": "c1c2",
+            "obj": "host",
+            "content": {
+                "task": "remote", "ip": "10.2.1.67", "cmd": "uptime", "user": "weblogic"
+            }
+        }
+
         recode = self.post(mess)
         if recode == 403:
             print("http status--------->> yes")
@@ -308,9 +320,9 @@ class MemCachedManager(object):
 # showhost.vmstat()
 # showhost.cpu()
 
-# hostcmd = HostManagerhostcmd()
-# hostcmd.uptime()
-# hostcmd.nowait()
+hostcmd = HostManagerhostcmd()
+hostcmd.uptime()
+hostcmd.nowait()
 
 # netcheck = Network()
 # netcheck.pinghost('10.2.1.5')

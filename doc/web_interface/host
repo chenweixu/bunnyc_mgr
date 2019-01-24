@@ -1,0 +1,20 @@
+methods: post
+
+'obj': 'host',
+'content': {}
+
+1. 本地命令执行
+task: local
+cmd:
+
+2. 远程命令执行
+task: 'remote'
+ip: ''
+cmd:
+user:  可选
+
+3. 远程命令执行-单项任务
+task: 'remote'
+ip:
+unit: [cpu, mem, disk, netlistening, netss, uptime, netrxtx, vmstat]
+

@@ -1,13 +1,14 @@
 from app import app
 from flask import request
 from flask import jsonify
-from app.main.mylog import My_log
+from app.main.util.mylog import My_log
+from app.main.util.myencrypt import create_key, verify_key
 from app.main.conf import conf_data
 from app.main.sms_tools import Sms_tools
-from app.main.host import HostTaskInfo
+from app.main.host import HostTask
 from app.main.network import NetWork
 from app.main.service import Service
-from app.main.myencrypt import create_key, verify_key
+from app.main.monitor_data import MonitorTask
 
 logfile = conf_data("work_log")
 log_evel = conf_data("log_evel")
@@ -18,13 +19,38 @@ work_log = My_log(logfile, log_evel).get_log()
 def v2_host():
     work_log.debug(str(request.path))
     work_log.info("request host interface ip: %s" % (request.remote_addr))
+
     if request.method == "GET":
         return "", 404
     elif request.method == "POST":
         try:
             key = request.json.get("key")
             if verify_key(key) and request.json.get("obj") == 'host':
-                info = HostTaskInfo(request.json.get('content'))
+                info = HostTask(request.json.get('content'))
+                data = info.run()
+                return jsonify(data)
+            else:
+                work_log.error("req verify_key or obj error")
+                return "", 404
+        except Exception as e:
+            work_log.error("host run error")
+            work_log.error(str(e))
+            return "", 404
+    else:
+        return "", 404
+
+
+@app.route("/api/v2/monitor", methods=["GET", "POST"])
+def v2_monitor():
+    work_log.debug(str(request.path))
+    work_log.info("request MonitorTask interface ip: %s" % (request.remote_addr))
+    if request.method == "GET":
+        return "", 404
+    elif request.method == "POST":
+        try:
+            key = request.json.get("key")
+            if verify_key(key) and request.json.get("obj") == 'host':
+                info = MonitorTask(request.json.get('content'))
                 data = info.run()
                 return jsonify(data)
             else:

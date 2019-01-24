@@ -1,0 +1,50 @@
+methods: get
+
+1. url探测
+/api/v2/service&checkurl=http://xxx.url
+
+==============================================================================
+
+methods: post
+
+'obj': 'service',
+'content': {}
+
+1. nginx 开关
+unit: nginx
+task: "lock", "ulock", "showlock"
+
+2. nginx IP 锁定/解锁
+unit: nginx
+server:
+task: [start, stop, reload, showaccesslog, showerrorlog]
+
+
+3. memcached
+unit: memcached
+task: ["start", "stop", "reboot"]
+
+4. memcached data
+unit: memcached
+task: [get, set]
+server:
+
+5. memcached cmd
+unit: memcached
+task: [link_sum, cleardata]
+server:
+
+6. weblogic
+unit: weblogic
+task: ["start", "stop", "reboot"]
+server:
+
+7. weblogic
+unit: weblogic
+task: ["start", "stop", "reboot"]
+group:
+
+8. weblogic
+unit: weblogic
+task: ["showaccesslog", "showlogout"]
+server:

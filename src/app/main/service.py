@@ -1,10 +1,11 @@
-from app.main.mylog import My_log
+from app.main.util.mylog import My_log
 from app.main.networkmanager import NetworkManager
 from app.main.hostshell import HostBaseCmd
 from app.main.servicemanager import NginxManager
 from app.main.servicemanager import WeblogicManager
-from app.main.memcached import Memcached
+from app.main.util.memcached import Memcached
 from app.main.web import CheckWebInterface
+from app.main.conf import conf_data
 
 logfile = conf_data("work_log")
 log_evel = conf_data("log_level")
@@ -16,7 +17,7 @@ class Service(object):
     def __init__(self):
         super(Service, self).__init__()
 
-    def check_url(url):
+    def check_url(self, url):
         if not url:
             work_log.error("args error")
             return 404
@@ -31,22 +32,21 @@ class Service(object):
             work_log.error(str(e))
             return 498
 
-
-    def run_task(data):
+    def run_task(self, data):
         work_log.debug(str(data))
         unit = data.get("unit")
         task = data.get("task")
 
         if unit == "nginx":
             if task in ["lock", "ulock", "showlock"]:
-                lock_ip = request.json.get("lock_ip")
+                lock_ip = data.get("lock_ip")
                 work_log.info("nginx task: %s :  ip: %s" % (str(task), str(lock_ip)))
                 info = NginxManager()
                 data = info.lock_ip(lock_ip, task)
                 return data
-            elif request.json.get("server"):
-                server = request.json.get("server")
-                work_log.debug("nginx task: %s, webserver: %s " % (str(task),str(webserver))
+            elif data.get("server"):
+                server = data.get("server")
+                work_log.debug("nginx task: %s, server: %s " % (str(task),str(server)))
                 info = NginxManager()
                 data = info.nginx_task(server, task)
                 return data
@@ -60,25 +60,24 @@ class Service(object):
                 data = info.run_task(data)
                 return data
             elif task in ["link_sum", "get", "set", "cleardata"]:
-                data = info.data_task(request.json)
+                data = info.data_task(data)
                 return data
             else:
-                return jsonify({"recode": 99, "redata": "format error"})
+                return {"recode": 99, "redata": "format error"}
 
         if unit == 'weblogic':
             work_log.debug("---------------- weblogic task start ----------------")
             info = WeblogicManager()
+            if data.get('group'):
+                group = data.get("group")
+                work_log.debug(group)
+                data = info.run_task_group(task, group)
 
-            if task == "start_group" or task == "stop_group":
-                group_number = data.get("group_number")
-                work_log.debug(group_number)
-                data = info.run_task_group(task, group_number)
-
-            elif task in ("start", "stop", "show_access_log", "show_error_log"):
-                service_number = request.args.get("service_number")
-                hosts = request.args.get("hosts")
-                work_log.debug(service_number)
-                data = info.run_task(hosts, task, service_number)
+            elif data.get("server"):
+                server = data.get("server")
+                hosts = data.get("hosts")
+                work_log.debug(server)
+                data = info.run_task(hosts, task, server)
             else:
                 data = {"recode": 9, "redata": "参数错误"}
             work_log.info(data)
