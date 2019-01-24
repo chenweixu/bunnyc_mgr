@@ -573,14 +573,18 @@ class NginxManager(object):
         status, data = a.ssh_cmd(cmd, stdout=True)
         return status, data
 
-    def showlockip(self):
+    def showlock(self):
         cmd = "grep clientRealIp /opt/nginx/conf/deny_ip.conf"
         ip = conf_data("service_info", "nginx", "dmz")[0]
-        recode, data = self.__ssh_cmd(ip, cmd)
-        lock_ip = re.compile("\d+.\d+.\d+.\d+").findall(data)
-        work_log.debug("showlockip: " + str(lock_ip))
-        return {"recode": 0, "data": lock_ip}
-        # return {'recode':500,'data':'req not support'}
+        try:
+            recode, data = self.__ssh_cmd(ip, cmd)
+            lock_ip = re.compile("\d+.\d+.\d+.\d+").findall(data)
+            work_log.debug("showlockip: " + str(lock_ip))
+            return {"recode": 0, "redata": lock_ip}
+        except Exception as e:
+            work_log.error("show lock ip error")
+            work_log.error(str(e))
+            return {"recode": 2, "redata": str(e)}
 
     def lock_ip(self, ip, task):
         if task == "lock":
@@ -595,10 +599,8 @@ class NginxManager(object):
                 + ip
                 + """//' /opt/nginx/conf/deny_ip.conf"""
             )
-        elif task == "showlock":
-            return self.showlockip()
         else:
-            return {"recode": 9999, "data": "req format error"}
+            return {"recode": 1, "redata": "req format error"}
 
         cmd2 = "/opt/nginx/sbin/nginx -s reload"
         hosts = conf_data("service_info", "nginx", "dmz")
@@ -645,7 +647,7 @@ class NginxManager(object):
             return {"recode": 2, "redata": "not found task"}
 
         if not data:
-            data = "exec sucess"
+            data = "sucesse"
 
         newdata = {"redata": data, "recode": recode}
         return newdata

@@ -38,21 +38,27 @@ class Service(object):
         task = data.get("task")
 
         if unit == "nginx":
-            if task in ["lock", "ulock", "showlock"]:
-                lock_ip = data.get("lock_ip")
-                work_log.info("nginx task: %s :  ip: %s" % (str(task), str(lock_ip)))
-                info = NginxManager()
-                data = info.lock_ip(lock_ip, task)
-                return data
-            elif data.get("server"):
+            if data.get("server"):
                 server = data.get("server")
                 work_log.debug("nginx task: %s, server: %s " % (str(task),str(server)))
                 info = NginxManager()
                 data = info.nginx_task(server, task)
                 return data
+
+            elif task in ["lock", "ulock"]:
+                ip = data.get("ip")
+                work_log.info("nginx task: %s :  ip: %s" % (str(task), str(ip)))
+                info = NginxManager()
+                data = info.lock_ip(ip, task)
+                return data
+            elif task == "showlock":
+                work_log.info("nginx task: showlock")
+                info = NginxManager()
+                data = info.showlock()
+                return data
             else:
-                work_log.error("recode: 9999, req format error")
-                return {"recode": 9999, "data": "req format error"}
+                work_log.error("recode: 1, req format error")
+                return {"recode": 1, "redata": "req format error"}
 
         if unit == 'memcached':
             info = MemcachedManager()

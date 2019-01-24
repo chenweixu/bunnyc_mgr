@@ -101,7 +101,7 @@ class HostBaseCmd(Myssh):
     def net_port_scan(self, ip, port):
         try:
             work_dir = conf_data("work_dir")
-            source_file = work_dir + "/main/port_scan.py"
+            source_file = work_dir + "/main/util/port_scan.py"
             des_file = "/tmp/port_scan.py"
             work_log.debug("copy file to remote")
             self.ssh_file_put(source_file, des_file)
@@ -129,11 +129,8 @@ class HostBaseCmd(Myssh):
             work_log.error("remote exec cmd error")
             work_log.error(str(e))
             recode = 2
-
-        new_data = {"recode": recode}
-
-        work_log.debug(str(new_data))
-        return new_data
+        return recode
+        work_log.debug("port scan recode: %s" % recode)
 
 
 class HostGroupCmd(object):

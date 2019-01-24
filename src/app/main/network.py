@@ -23,28 +23,38 @@ class NetWork(object):
         task = data.get("task")
         work_log.debug(str(data))
         if task == "check_port":
-            source_ip = data.get("client")
+            source_ip = data.get("source")
             des_ip = data.get("ip")
             des_port = data.get("port")
 
-            if source_ip == "127.0.0.1":
+            if source_ip == "localhost":
                 info = NetworkManager()
                 try:
-                    recode = info.port_scan(des_ip, des_port)
+                    redata = info.port_scan(des_ip, des_port)
+                    if redata == 0:
+                        recode = 0
+                    else:
+                        recode = 4
                 except Exception as e:
                     work_log.error(str(e))
-                    recode = "1"
-                data = {"recode": recode, 'redata': ''}
+                    redata = "scan error"
+                    recode = 2
+
+                data = {"recode": recode, 'redata': redata}
                 return data
             else:
                 info = HostBaseCmd(source_ip, scp=True)
-                data = info.net_port_scan(ip=des_ip, port=des_port)
-                work_log.debug(str(data))
-                data['redata'] = ''
+                redata = info.net_port_scan(ip=des_ip, port=des_port)
+                if redata == 0:
+                    recode = 0
+                else:
+                    recode = 4
+                data = {"recode": recode, 'redata': redata}
+                work_log.debug("port scan status: "+str(data))
                 return data
 
         elif task == "iptable":
-            return "", 404
+            return {"recode": 1, 'redata': "未开放"}
         else:
             work_log.debug(str("task not found"))
-            return "", 404
+            return {"recode": 1, 'redata': "参数错误"}

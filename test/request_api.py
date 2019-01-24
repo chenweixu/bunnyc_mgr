@@ -10,12 +10,10 @@ import requests
 app_url = "http://10.2.1.5:9002"
 
 host_url = app_url + "/api/v2/host"
-hostcmd_url = app_url + "/api/v1/hostcmd"
-network_url = app_url + "/api/v1/network"
-weblogic_url = app_url + "/api/v1/weblogic"
-nginx_url = app_url + "/api/v1/nginx"
+network_url = app_url + "/api/v2/network"
+service_url = app_url + "/api/v2/service"
 checkweburl_url = app_url + "/api/v1/checkweburl"
-memcached_url = app_url + "/api/v1/memcached"
+
 
 json_headers = {"content-type": "application/json"}
 
@@ -30,47 +28,43 @@ class ShowSysTemInfo(object):
         mess = {
             "key": "c1c2",
             "obj": "host",
-            "content": {
-                "task": "remote", "ip": "10.2.1.67", "unit": unit
-            }
+            "content": {"task": "remote", "ip": "10.2.1.67", "unit": unit},
         }
-        r = requests.post(
-            host_url, data=json.dumps(mess), headers=json_headers
-        )
+        r = requests.post(host_url, data=json.dumps(mess), headers=json_headers)
         print("http status--------->> %s" % r.status_code)
         print(r.text)
 
     def disk(self):
         print(">>ShowSysTemInfo system info: disk")
-        self.post('disk')
+        self.post("disk")
 
     def mem(self):
         print(">>ShowSysTemInfo system info: mem")
-        self.post('mem')
+        self.post("mem")
 
     def netlistening(self):
         print(">>ShowSysTemInfo system info: netlist")
-        self.post('netlistening')
+        self.post("netlistening")
 
     def netss(self):
         print(">>ShowSysTemInfo system info: netss")
-        self.post('netss')
+        self.post("netss")
 
     def uptime(self):
         print(">>ShowSysTemInfo system info: uptime")
-        self.post('uptime')
+        self.post("uptime")
 
     def netrxtx(self):
         print(">>ShowSysTemInfo system info: netrxtx")
-        self.post('netrxtx')
+        self.post("netrxtx")
 
     def vmstat(self):
         print(">>ShowSysTemInfo system info: vmstart")
-        self.post('vmstat')
+        self.post("vmstat")
 
     def cpu(self):
         print(">>ShowSysTemInfo system info: cpu")
-        self.post('cpu')
+        self.post("cpu")
 
 
 class HostManagerhostcmd(object):
@@ -90,9 +84,7 @@ class HostManagerhostcmd(object):
         mess = {
             "key": "c1c2",
             "obj": "host",
-            "content": {
-                "task": "remote", "ip": "10.2.1.67", "cmd": "uptime"
-            }
+            "content": {"task": "remote", "ip": "10.2.1.67", "cmd": "uptime"},
         }
         self.post(mess)
 
@@ -102,8 +94,11 @@ class HostManagerhostcmd(object):
             "key": "c1c2",
             "obj": "host",
             "content": {
-                "task": "remote", "ip": "10.2.1.67", "cmd": "uptime", "user": "weblogic"
-            }
+                "task": "remote",
+                "ip": "10.2.1.67",
+                "cmd": "uptime",
+                "user": "weblogic",
+            },
         }
 
         recode = self.post(mess)
@@ -119,37 +114,20 @@ class Network(object):
 
     def pinghost(self, ip):
         print(">> Network test ping host %s" % ip)
-        r = requests.get(network_url, timeout=5, params={"host": ip})
+        r = requests.get(network_url, timeout=10, params={"host": ip})
         print("http status--------->> %s" % r.status_code)
         print(r.text)
         return r.status_code
 
-    def check_local_port(self, port):
+    def check_local_port(self, ip, port, source="localhost"):
         mess = {
-            "sip": "127.0.0.1",
-            "ip": "10.2.1.5",
-            "port": port,
-            "task": "check_port",
+            "key": "c1c2",
+            "obj": "network",
+            "content": {"task": "check_port", "ip": ip, "port": port, "source": source},
         }
-        print(
-            ">> Network check sip-> %s , ip-> %s ,port-> %s"
-            % ("127.0.0.1", mess.get("ip"), str(port))
-        )
-        r = requests.post(network_url, data=json.dumps(mess), headers=json_headers)
-        print("http status--------->> %s" % r.status_code)
-        print(r.text)
-        return r.status_code
 
-    def check_server_login_port(self, port):
-        mess = {
-            "sip": "10.2.1.67",
-            "ip": "10.2.1.5",
-            "port": port,
-            "task": "check_port",
-        }
         print(
-            ">> Network check sip-> %s , ip-> %s ,port-> %s"
-            % ("10.2.1.67", mess.get("ip"), str(port))
+            ">> Network check sip-> %s , ip-> %s ,port-> %s" % (source, ip, str(port))
         )
         r = requests.post(network_url, data=json.dumps(mess), headers=json_headers)
         print("http status--------->> %s" % r.status_code)
@@ -218,37 +196,36 @@ class Nginx(object):
         super(Nginx, self).__init__()
 
     def post(self, mess):
-        r = requests.post(nginx_url, data=json.dumps(mess), headers=json_headers)
+        r = requests.post(service_url, data=json.dumps(mess), headers=json_headers)
         print("http status--------->> %s" % r.status_code)
         print(r.text)
 
-    def start_nginx(self, ip):
-        print(">> start_nginx  %s" % ip)
-        self.post({"webserver": ip, "task": "start"})
+    def single_nginx(self, ip, task):
+        print(">> single_nginx  %s task: %s" % (ip, task))
+        mess = {
+            "key": "c1c2",
+            "obj": "service",
+            "content": {"task": task, "unit": "nginx", "server": ip},
+        }
+        self.post(mess)
 
-    def lock_ip(self, ip):
-        print(">> lock_ip  %s" % ip)
-        self.post({"lock_ip": ip, "task": "lock"})
+    def lock_nginx(self, task, ip=None):
+        print(">> lock_nginx  %s task: %s" % (ip, task))
+        mess = {
+            "key": "c1c2",
+            "obj": "service",
+            "content": {"task": task, "unit": "nginx", "ip": ip},
+        }
+        self.post(mess)
 
-    def stop_nginx(self, ip):
-        print(">> stop_nginx  %s" % ip)
-        self.post({"webserver": ip, "task": "stop"})
-
-    def restart(self, ip):
-        print(">> restart  %s" % ip)
-        self.post({"webserver": ip, "task": "restart"})
-
-    def show_access_log(self, ip):
-        print(">> show_access_log  %s" % ip)
-        self.post({"webserver": ip, "task": "show_access_log"})
-
-    def show_error_log(self, ip):
-        print(">> show_error_log  %s" % ip)
-        self.post({"webserver": ip, "task": "show_error_log"})
-
-    def clear_access_log(self, ip):
-        print(">> clear_access_log  %s" % ip)
-        self.post({"webserver": ip, "task": "clear_access_log"})
+    def show_lock(self):
+        print(">> show_lock ")
+        mess = {
+            "key": "c1c2",
+            "obj": "service",
+            "content": {"task": "showlock", "unit": "nginx"}
+        }
+        self.post(mess)
 
 
 class checl_web_url(object):
@@ -320,17 +297,18 @@ class MemCachedManager(object):
 # showhost.vmstat()
 # showhost.cpu()
 
-hostcmd = HostManagerhostcmd()
-hostcmd.uptime()
-hostcmd.nowait()
+# hostcmd = HostManagerhostcmd()
+# hostcmd.uptime()
+# hostcmd.nowait()
 
 # netcheck = Network()
 # netcheck.pinghost('10.2.1.5')
-# netcheck.pinghost('10.2.1.68')
+# netcheck.pinghost('10.2.1.67')
 # netcheck.pinghost('10.23.12.68')
-# netcheck.check_local_port(9002)
-# netcheck.check_server_login_port(9002)
-# netcheck.check_server_login_port(8000)
+# netcheck.check_local_port("10.2.1.5", 9002)
+# netcheck.check_local_port("10.2.1.5", 9002, source="10.2.1.67")
+# netcheck.check_local_port("10.2.1.5", 22, source="10.2.1.67")
+
 
 # weblogic = ServiceManagerWeblogic()
 # weblogic.start_weblogic_single_service()
@@ -342,11 +320,18 @@ hostcmd.nowait()
 # weblogic.start_group()
 # weblogic.stop_group()
 
-# nginx = Nginx()
-# nginx.start_nginx('10.2.1.67')
-# nginx.start_nginx('10.2.1.68')
-# nginx.lock_ip('3.1.1.4')
-# nginx.restart('10.2.1.67')
+nginx = Nginx()
+# nginx.single_nginx("10.2.1.67", "start")
+# nginx.single_nginx("10.2.1.67", "stop")
+# nginx.single_nginx("10.2.1.67", "reload")
+# nginx.single_nginx("10.2.1.67", "restart")
+# nginx.single_nginx("10.2.1.67", "show_access_log")
+# nginx.single_nginx("10.2.1.67", "show_error_log")
+# nginx.single_nginx("10.2.1.67", "clear_access_log")
+
+nginx.lock_nginx("lock", '3.1.1.9')
+nginx.show_lock()
+
 # nginx.restart('10.2.1.68')
 # nginx.stop_nginx('10.2.1.67')
 # nginx.stop_nginx('10.2.1.68')

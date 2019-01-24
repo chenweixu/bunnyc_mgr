@@ -80,6 +80,10 @@ class NetworkManager(object):
     def local_ping(self, ip):
         work_log.info("networkmanager ping host: " + str(ip))
         recode = self.host_ping_check(ip)
-        data = {"addr": ip, "recode": recode}
+        if recode == 0:
+            redata = '成功'
+        else:
+            redata = "失败"
+        data = {"recode": recode, "redata": redata}
 
         return data
