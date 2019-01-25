@@ -1,11 +1,9 @@
-from app.main.util.mylog import My_log
-from app.main.networkmanager import NetworkManager
-from app.main.hostshell import HostBaseCmd
-from app.main.servicemanager import NginxManager
-from app.main.servicemanager import WeblogicManager
-from app.main.util.memcached import Memcached
-from app.main.web import CheckWebInterface
 from app.main.conf import conf_data
+from app.main.util.mylog import My_log
+from app.main.web import CheckWebInterface
+from app.main.service_memcached import MemcachedManager
+from app.main.service_nginx import NginxManager
+from app.main.service_weblogic import WeblogicManager
 
 logfile = conf_data("work_log")
 log_evel = conf_data("log_level")
@@ -14,6 +12,7 @@ work_log = My_log(logfile, log_evel).get_log()
 
 class Service(object):
     """docstring for Service"""
+
     def __init__(self):
         super(Service, self).__init__()
 
@@ -40,7 +39,7 @@ class Service(object):
         if unit == "nginx":
             if data.get("server"):
                 server = data.get("server")
-                work_log.debug("nginx task: %s, server: %s " % (str(task),str(server)))
+                work_log.debug("nginx task: %s, server: %s " % (str(task), str(server)))
                 info = NginxManager()
                 data = info.nginx_task(server, task)
                 return data
@@ -60,21 +59,23 @@ class Service(object):
                 work_log.error("recode: 1, req format error")
                 return {"recode": 1, "redata": "req format error"}
 
-        if unit == 'memcached':
+        if unit == "memcached":
             info = MemcachedManager()
-            if task in ["start", "stop", "reboot"]:
-                data = info.run_task(data)
+            if task in ["start", "stop", "reboot", "cleardata", "link_sum"]:
+                data = info.run_task(task)
                 return data
-            elif task in ["link_sum", "get", "set", "cleardata"]:
+            elif task == "get":
+                data = info.data_task(data)
+            elif task == "set":
                 data = info.data_task(data)
                 return data
             else:
                 return {"recode": 99, "redata": "format error"}
 
-        if unit == 'weblogic':
+        if unit == "weblogic":
             work_log.debug("---------------- weblogic task start ----------------")
             info = WeblogicManager()
-            if data.get('group'):
+            if data.get("group"):
                 group = data.get("group")
                 work_log.debug(group)
                 data = info.run_task_group(task, group)

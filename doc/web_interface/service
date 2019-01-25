@@ -29,17 +29,18 @@ task: [start, stop, reload, show_access_log, show_error_log,
 
 4. memcached
 unit: memcached
-task: ["start", "stop", "reboot"]
+server:
+port:
+task: ["start", "stop", "reboot", link_sum, cleardata]
 
 5. memcached data
 unit: memcached
+server:
+port:
 task: [get, set]
-server:
+    get: key
+    set: key / value
 
-6. memcached cmd
-unit: memcached
-task: [link_sum, cleardata]
-server:
 
 7. weblogic
 unit: weblogic

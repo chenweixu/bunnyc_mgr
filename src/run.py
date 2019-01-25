@@ -7,5 +7,7 @@ __author__ = 'chenwx'
 from app import app
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=9002)
-    # app.run(debug=False, host='0.0.0.0', port=9002)
+    app.config.from_object('config')
+    host = app.config['HOST']
+    port = app.config['PORT']
+    app.run(host=host, port=port)

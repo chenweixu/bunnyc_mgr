@@ -1,9 +1,9 @@
 import yaml
 from pathlib import Path
+from app import app
 
 
 def conf_data(style, *args):
-
     if style == "work_dir":
         return str(Path(__file__).parent.parent)
 
@@ -16,8 +16,10 @@ def conf_data(style, *args):
     if style == "error_log":
         return str(Path(__file__).parent.parent.parent / "log/error.log")
 
-    conf_file = Path(__file__).parent.parent / "conf/devel.yaml"
-    # conf_file = Path(__file__).parent.parent / 'conf/conf.yaml'
+    if app.config['RUN_MODEL'] == 'produce':
+        conf_file = Path(__file__).parent.parent / 'conf/conf.yaml'
+    else:
+        conf_file = Path(__file__).parent.parent / "conf/devel.yaml"
 
     data = yaml.load(conf_file.read_text())
 

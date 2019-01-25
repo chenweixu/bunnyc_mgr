@@ -1,5 +1,5 @@
 from app.main.util.mylog import My_log
-from app.main.networkmanager import NetworkManager
+from app.main.network_manager import NetworkManager
 from app.main.hostshell import HostBaseCmd
 from app.main.conf import conf_data
 

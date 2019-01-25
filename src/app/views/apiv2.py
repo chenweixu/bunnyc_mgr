@@ -15,6 +15,12 @@ log_evel = conf_data("log_evel")
 work_log = My_log(logfile, log_evel).get_log()
 
 
+@app.route("/")
+def index():
+    data = app.config['RUN_MODEL']
+    return str(data), 200
+
+
 @app.route("/api/v2/host", methods=["GET", "POST"])
 def v2_host():
     work_log.debug(str(request.path))
