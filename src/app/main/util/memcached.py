@@ -64,6 +64,9 @@ class Memcached(object):
         # data = bytes(value,encoding="utf-8")
         # return self.mc.set(key,data,expire)
 
+    def show_stats(self, key):
+        return self.stats().get(key.encode())
+
     def get_connections_sum(self):
         return int(self.stats().get("curr_connections".encode()))
 

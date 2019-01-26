@@ -10,6 +10,7 @@ methods: post
 'obj': 'service',
 'content': {}
 
+# nginx
 1. nginx IP 锁定/解锁
 unit: nginx
 ip:
@@ -26,33 +27,29 @@ task: [start, stop, reload, show_access_log, show_error_log,
     clear_access_log, clear_error_log
     ]
 
-
-4. memcached
+# memcached
+1. memcached single
 unit: memcached
 server:
 port:
-task: ["start", "stop", "reboot", link_sum, cleardata]
+task: ["start", "stop", "reboot"]
 
-5. memcached data
+2. memcached data
 unit: memcached
 server:
 port:
-task: [get, set]
+task: [get, set, link_sum, cleardata]
     get: key
     set: key / value
 
-
-7. weblogic
+# weblogic
+1. single
 unit: weblogic
-task: ["start", "stop", "reboot"]
+task: ["start", "stop", "reboot", "accesslog", "projectlog", "check"]
 server:
+prot:  无值表示所有接口
 
-8. weblogic
+2. group
 unit: weblogic
-task: ["start", "stop", "reboot"]
+task: ["start", "stop", "reboot", "check"]
 group:
-
-9. weblogic
-unit: weblogic
-task: ["showaccesslog", "showlogout"]
-server:
