@@ -117,17 +117,17 @@ def v2_service():
         else:
             work_log.debug('checkurl req format error')
             return '', 401
-
-    try:
-        key = request.json.get("key")
-        if verify_key(key) and request.json.get("obj") == 'service':
-            info = Service()
-            data = info.run_task(request.json.get('content'))
-            return jsonify(data)
-        else:
-            work_log.error("req verify_key or obj error")
+    elif request.method == "POST":
+        try:
+            key = request.json.get("key")
+            if verify_key(key) and request.json.get("obj") == 'service':
+                info = Service()
+                data = info.run_task(request.json.get('content'))
+                return jsonify(data)
+            else:
+                work_log.error("req verify_key or obj error")
+                return "", 404
+        except Exception as e:
+            work_log.error("req format error")
+            work_log.error(str(e))
             return "", 404
-    except Exception as e:
-        work_log.error("req format error")
-        work_log.error(str(e))
-        return "", 404

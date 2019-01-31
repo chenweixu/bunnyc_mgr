@@ -45,7 +45,7 @@ class HostBaseCmd(Myssh):
                 if run_stderr:
                     work_log.error("ssh_cmd error, run_stderr")
                     work_log.error(str(run_stderr))
-                    return [1, run_stderr.decode("utf-8")]
+                    return [2, run_stderr.decode("utf-8")]
                 else:
                     work_log.debug("ssh_cmd success, run_stdout")
                     work_log.debug(str(run_stdout))
@@ -54,7 +54,7 @@ class HostBaseCmd(Myssh):
             if run_stderr:
                 work_log.error("ssh_cmd error, run_stderr")
                 work_log.error(str(run_stderr))
-                return 1
+                return 2
             else:
                 work_log.debug("ssh_cmd success, run_stdout")
                 work_log.debug(str(run_stdout))

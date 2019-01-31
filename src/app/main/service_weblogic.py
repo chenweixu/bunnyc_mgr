@@ -357,22 +357,102 @@ class WeblogicManagerSingle(object):
         self.start_cmd = conf_data("service_info", "weblogic", "start_cmd")
         self.stop_cmd = conf_data("service_info", "weblogic", "stop_cmd")
 
-
-    def _weblogic_ssh_cmd(self, cmd, stdout=False):
-        work_log.info("weblogic_ssh host: %s cmd: %s stdout: %s" % (self.ip, cmd, stdout))
+    def _weblogic_ssh_cmd(self, cmd):
+        work_log.info("weblogic_ssh host: %s cmd: %s" % (self.ip, cmd))
         try:
             ssh = HostBaseCmd(self.ip, user=self.user)
-            redata = ssh.ssh_cmd(cmd, stdout=stdout)
-
-            if stdout:
-                work_log.debug(str(stdout))
-                return [redata[0], redata[1]]
-            else:
-                return redata
+            data = ssh.ssh_cmd(cmd, stdout=True)
+            work_log.debug("_weblogic_ssh_cmd redata: %s" % str(data))
+            return data
         except Exception as e:
             work_log.error("_weblogic_ssh_cmd Exception error")
             work_log.error(str(e))
             return 2
+
+    def start_weblogic_single_service(self, port=None):
+        # 启动单个服务
+        if not port:
+            cmd = self.start_cmd.replace("1", str(int(self.port) - 17100))
+        else:
+            cmd = self.start_cmd.replace("1", str(int(port) - 17100))
+        run_data = self._weblogic_ssh_cmd(cmd)
+        if run_data[0] == 0:
+            return {"recode": run_data[0], "redata": "success"}
+        if run_data[0] == 0:
+            return {"recode": run_data[0], "redata": run_data[1]}
+
+
+    def stop_weblogic_single_service(self, port=None):
+        # 停止单个服务
+        if not port:
+            cmd = self.stop_cmd.replace("1", str(int(self.port) - 17100))
+        else:
+            cmd = self.stop_cmd.replace("1", str(int(port) - 17100))
+        run_data = self._weblogic_ssh_cmd(cmd)
+        if run_data[0] == 0:
+            return {"recode": run_data[0], "redata": "success"}
+        if run_data[0] == 0:
+            return {"recode": run_data[0], "redata": run_data[1]}
+
+    def reboot_weblogic_single_service(self):
+        data = self.stop_weblogic_single_service()
+        if data.get("recode") != 0:
+            return data
+        else:
+            return self.start_weblogic_single_service()
+
+    def showlogaccess(self):
+        log_access = conf_data("service_info", "weblogic", "log_access")
+        cmd = "tail -n 300 " + log_access.replace("1", str(int(self.port) - 17100))
+        data = self._weblogic_ssh_cmd(cmd)
+        if data == 2:
+            return {"recode": data, "redata": "error"}
+        else:
+            return {"recode": data[0], "redata": data[1]}
+
+    def showprojectlog(self):
+        log_out = conf_data("service_info", "weblogic", "log_out")
+        cmd = "tail -n 300 " + log_out.replace("1", str(int(self.port) - 17100))
+        data = self._weblogic_ssh_cmd(cmd)
+        if data == 2:
+            return {"recode": data, "redata": "error"}
+        else:
+            return {"recode": data[0], "redata": data[1]}
+
+    def start_wg_single(self):
+        # 并行 启动单个主机上的6个服务
+        pool = Pool(processes=6)
+        info = []
+        for port in range(17101, 17107):
+            info.append(
+                pool.apply_async(self.start_weblogic_single_service, (port,))
+            )
+        pool.close()
+        pool.join()
+
+        data = []
+        for i in info:
+            data.append(i.get())
+        work_log.info(str(data))
+        return data
+
+    def stop_wg_single(self):
+        # 并行 停止单个主机上的6个服务
+        pool = Pool(processes=6)
+        info = []
+        for port in range(17101, 17107):
+            info.append(
+                pool.apply_async(self.stop_weblogic_single_service, (port,))
+            )
+        pool.close()
+        pool.join()
+
+        data = []
+        for i in info:
+            data.append(i.get())
+        work_log.info(str(data))
+        return data
+
 
     def start_weblogic_single_host(self, host):
         # 顺序 启动单个主机的6个服务
@@ -380,39 +460,9 @@ class WeblogicManagerSingle(object):
         for serid in range(1, 7):
             port = 17100 + serid
             cmd = self.start_cmd.replace("1", str(serid))
-            run_code = self._weblogic_ssh_cmd(host, cmd)
+            run_code = self._weblogic_ssh_cmd(cmd)
             data.append([host, port, run_code])
         return data
-
-    def start_weblogic_single_service(self, status=None):
-        # 启动单个服务
-        port = 17100 + int(self.port)
-        cmd = self.start_cmd.replace("1", str(self.port))
-        run_code = self._weblogic_ssh_cmd(self.host, cmd)
-        if status:
-            return run_code
-        else:
-            return [self.host, port, run_code]
-
-    def start_wg_single(self, ip, app=None):
-        # 并行 启动单个主机上的6个服务 | 或单个单个服务
-        if app:
-            data = self.start_weblogic_single_service(ip, app)
-            return [data]
-        else:
-            pool = Pool(processes=6)
-            info = []
-            for serid in range(1, 7):
-                info.append(
-                    pool.apply_async(self.start_weblogic_single_service, (ip, serid))
-                )
-            pool.close()
-            pool.join()
-
-            data = []
-            for i in info:
-                data.append(i.get())
-            return data
 
 
     def stop_weblogic_single_hosts(self, host):
@@ -426,130 +476,114 @@ class WeblogicManagerSingle(object):
             data.append([host, port, run_code])
         return data
 
-    def stop_weblogic_single_service(self, host, serid, status=None):
-        # 停止 单个服务
-        port = 17100 + serid
-        cmd = self.stop_cmd.replace("1", str(serid))
-        run_code = self._weblogic_ssh_cmd(host, cmd)
 
-        if status:
-            return run_code
-        else:
-            return [host, port, run_code]
-
-    def stop_wg_single(self, ip, app=None):
-        # 并行 停止单个主机上的6个服务 | 或单个单个服务
-        if app:
-            data = self.stop_weblogic_single_service(ip, app)
-            return [data]
-        else:
-            pool = Pool(processes=6)
-            info = []
-            for serid in range(1, 7):
-                info.append(
-                    pool.apply_async(self.stop_weblogic_single_service, (ip, serid))
-                )
-            pool.close()
-            pool.join()
-
-            data = []
-            for i in info:
-                data.append(i.get())
-            return data
-
-
-    def showlogaccess(self, host, app):
-        log_access = conf_data("service_info", "weblogic", "log_access")
-        cmd = "tail -n 300 " + log_access.replace("1", str(app))
-        data = self._weblogic_ssh_cmd(host, cmd, stdout=True)
-        if data == 2:
-            return {"recode": data, "redata": "error"}
-        else:
-            return {"recode": data[0], "redata": data[1]}
-
-    def showlogout(self, host, app):
-        log_out = conf_data("service_info", "weblogic", "log_out")
-        cmd = "tail -n 300 " + log_out.replace("1", str(app))
-        data = self._weblogic_ssh_cmd(host, cmd, stdout=True)
-        if data == 2:
-            return {"recode": data, "redata": "error"}
-        else:
-            return {"recode": data[0], "redata": data[1]}
 
     def run_task(self, task):
+        work_log.info('weblogic service task: %s , host: %s port: %s' % (task, self.ip, self.port))
+        if self.port and self.port >= 17101 and self.port <= 17106:
+            try:
+                if task == "start":
+                    return self.start_weblogic_single_service()
+                elif task == "stop":
+                    return self.stop_weblogic_single_service()
+                elif task == "reboot":
+                    return self.reboot_weblogic_single_service
+                elif task == "accesslog":
+                    return self.showlogaccess()
+                elif task == "projectlog":
+                    return self.showprojectlog()
+                elif task == "check":
+                    pass
+            except Exception as e:
+                work_log.error("single weblogic service run error")
+                work_log.error(str(e))
+                return {"recode": 2, "redata": str(e)}
 
-        if port >= 1 and port <= 6:
-            pass
+        elif not self.port:
+            work_log.info('not port')
+            try:
+                if task == "start":
+                    return self.start_wg_single()
+                elif task == "stop":
+                    return self.stop_wg_single()
+                elif task == "reboot":
+                    return self.reboot_weblogic_single_service
+                elif task == "accesslog":
+                    return self.showlogaccess()
+                elif task == "projectlog":
+                    return self.showprojectlog()
+                elif task == "check":
+                    pass
+            except Exception as e:
+                work_log.error("single weblogic service run error")
+                work_log.error(str(e))
+                return {"recode": 2, "redata": str(e)}
 
-        if not port:
-            work_log.info("weblogic task: %s, obj host all service" % task)
 
-            if task == "start":
-                work_log.debug("weblogic task start all")
-                body = self.start_wg_single(host)
-                tmp1 = 0
-                error_service = ""
-                for i in body:
-                    if i[-1] == 0:
-                        tmp1 += 1
-                    else:
-                        error_service += str(i[1]) + " "
+        #         body = self.start_wg_single(host)
+        #         tmp1 = 0
+        #         error_service = ""
+        #         for i in body:
+        #             if i[-1] == 0:
+        #                 tmp1 += 1
+        #             else:
+        #                 error_service += str(i[1]) + " "
 
-                if tmp1 == 6:
-                    return {"recode": 0, "redata": "all success"}
-                else:
-                    return {
-                        "recode": 2,
-                        "redata": "not all success, error service: "
-                        + error_service.rstrip(),
-                    }
+        #         if tmp1 == 6:
+        #             return {"recode": 0, "redata": "all success"}
+        #         else:
+        #             return {
+        #                 "recode": 2,
+        #                 "redata": "not all success, error service: "
+        #                 + error_service.rstrip(),
+        #             }
 
-            elif task == "stop":
-                work_log.debug("weblogic task: stop all")
-                body = self.stop_wg_single(host)
-                tmp1 = 0
-                error_service = ""
-                for i in body:
-                    if i[-1] == 0:
-                        tmp1 += 1
-                    else:
-                        error_service += str(i[1]) + " "
+        #     elif task == "stop":
+        #         work_log.debug("weblogic task: stop all")
+        #         body = self.stop_wg_single(host)
+        #         tmp1 = 0
+        #         error_service = ""
+        #         for i in body:
+        #             if i[-1] == 0:
+        #                 tmp1 += 1
+        #             else:
+        #                 error_service += str(i[1]) + " "
 
-                if tmp1 == 6:
-                    return {"recode": 0, "redata": "all success"}
-                else:
-                    return {
-                        "recode": 1,
-                        "redata": "not all success, error service: "
-                        + error_service.rstrip(),
-                    }
-        elif port >= 1 and port <= 6:
-            work_log.info("weblogic task: %s, obj service port: %s" % (task, port))
-            if task == "start":
-                work_log.debug("weblogic task: " + str(task) + "port: " + str(port))
-                data = self.start_weblogic_single_service(host, port, status=True)
+        #         if tmp1 == 6:
+        #             return {"recode": 0, "redata": "all success"}
+        #         else:
+        #             return {
+        #                 "recode": 1,
+        #                 "redata": "not all success, error service: "
+        #                 + error_service.rstrip(),
+        #             }
+        # elif port >= 1 and port <= 6:
+        #     work_log.info("weblogic task: %s, obj service port: %s" % (task, port))
+        #     if task == "start":
+        #         work_log.debug("weblogic task: " + str(task) + "port: " + str(port))
+        #         data = self.start_weblogic_single_service(host, port, status=True)
 
-                if data == 0:
-                    redata = "success"
-                else:
-                    redata = "error"
-                return {"recode": data, "redata": redata}
+        #         if data == 0:
+        #             redata = "success"
+        #         else:
+        #             redata = "error"
+        #         return {"recode": data, "redata": redata}
 
-            elif task == "stop":
-                work_log.debug("weblogic task: " + str(task) + "port: " + str(port))
-                data = self.stop_weblogic_single_service(host, port, status=True)
-                if data == 0:
-                    redata = "success"
-                else:
-                    redata = "error"
-                return {"recode": data, "redata": redata}
+        #     elif task == "stop":
+        #         work_log.debug("weblogic task: " + str(task) + "port: " + str(port))
+        #         data = self.stop_weblogic_single_service(host, port, status=True)
+        #         if data == 0:
+        #             redata = "success"
+        #         else:
+        #             redata = "error"
+        #         return {"recode": data, "redata": redata}
 
-            elif task == "accesslog":
-                work_log.debug("weblogic task: " + str(task))
-                return self.showlogaccess(host, port)
-            elif task == "projectlog":
-                work_log.debug("weblogic task: " + str(task))
-                return self.showlogout(host, port)
+        #     elif task == "accesslog":
+        #         work_log.debug("weblogic task: " + str(task))
+        #         return self.showlogaccess(host, port)
+        #     elif task == "projectlog":
+        #         work_log.debug("weblogic task: " + str(task))
+        #         return self.showlogout(host, port)
 
         else:
             return {"recode": 1, "redata": "参数错误"}
@@ -568,7 +602,7 @@ class WeblogicManagerGroup(object):
         return new_data
 
     def start_weblogic_single_service(ip, serid):
-        server = WeblogicManagerSingle(ip, serid):
+        server = WeblogicManagerSingle(ip, serid)
         server.start_weblogic_single_service()
 
     def start_wg_group(self, host_list):

@@ -47,7 +47,7 @@ task: [get, set, link_sum, cleardata]
 unit: weblogic
 task: ["start", "stop", "reboot", "accesslog", "projectlog", "check"]
 server:
-prot:  无值表示所有接口
+port:  无值表示所有接口
 
 2. group
 unit: weblogic

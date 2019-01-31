@@ -39,7 +39,7 @@ class Memcached(object):
         super(Memcached, self).__init__()
         # link = [str(ip) + ":" + str(port)]
         self.mc = Client(
-            (ip, port),
+            (ip, int(port)),
             serializer=serialize_json,
             deserializer=deserialize_json,
             connect_timeout=2,

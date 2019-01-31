@@ -32,7 +32,7 @@ class Memcached_single(object):
         except Exception as e:
             work_log.error("_mc_ssh_cmd Exception error")
             work_log.error(str(e))
-            return 90
+            return str(e)
 
     def start(self):
         mc_pidfile = self.pidfile.replace("1111", str(self.port))
@@ -48,9 +48,15 @@ class Memcached_single(object):
         return self._mc_ssh_cmd(cmd)
 
     def reboot(self):
-        self.stop()
+        a = self.stop()
+        if a != 0:
+            return a
         time.sleep(1)
-        self.start()
+        b = self.start()
+        if b == 0:
+            return 0
+        else:
+            return b
 
     def run(self):
         pass
@@ -115,11 +121,24 @@ class MemcachedManagerSingle(object):
     def run_task(self, task):
         server = Memcached_single(self.ip, self.port)
         if task == "start":
-            server.start()
+            recode = server.start()
+            if recode == 0:
+                return {"recode": recode, "redata": "exec success"}
+            else:
+                return {"recode": 99, "redata": recode}
         if task == "stop":
-            server.stop()
+            recode = server.stop()
+            if recode == 0:
+                return {"recode": recode, "redata": "exec success"}
+            else:
+                return {"recode": 99, "redata": recode}
+
         if task == "reboot":
-            server.reboot()
+            recode = server.reboot()
+            if recode == 0:
+                return {"recode": recode, "redata": "exec success"}
+            else:
+                return {"recode": 99, "redata": recode}
 
 
 class MemcachedManagerGroup(object):

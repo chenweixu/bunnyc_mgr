@@ -65,21 +65,25 @@ class Service(object):
                 return {"recode": 1, "redata": "req format error"}
 
         if unit == "memcached":
-            if task in ["start", "stop", "reboot"]:
-                info = MemcachedManagerSingle(data.get("server"), data.get("port"))
-                return info.run_task(task)
-            elif task in ["get", "set", "cleardata", "link_sum"]:
-                info = MemcachedDataManager(data.get("server"), data.get("port"))
-                if task == "get":
-                    return info.get(data.get("key"))
-                elif task == "set":
-                    return info.set(data.get("key"), data.get("value"))
-                elif task == "cleardata":
-                    return info.clear_data()
-                elif task == "link_sum":
-                    return info.showstatus("curr_connections")
-            else:
-                return {"recode": 1, "redata": "format error"}
+            try:
+                if task in ["start", "stop", "reboot"]:
+                    info = MemcachedManagerSingle(data.get("server"), data.get("port"))
+                    return info.run_task(task)
+                elif task in ["get", "set", "cleardata", "link_sum"]:
+                    info = MemcachedDataManager(data.get("server"), data.get("port"))
+                    if task == "get":
+                        return info.get(data.get("key"))
+                    elif task == "set":
+                        return info.set(data.get("key"), data.get("value"))
+                    elif task == "cleardata":
+                        return info.clear_data()
+                    elif task == "link_sum":
+                        return info.showstatus("curr_connections")
+                else:
+                    return {"recode": 1, "redata": "format error"}
+            except Exception as e:
+                work_log.error(str(e))
+                return {"recode": 2, "redata": "run error"}
 
         if unit == "weblogic":
             work_log.debug("---------------- weblogic task start ----------------")
@@ -92,6 +96,7 @@ class Service(object):
                 data = info.run_task_group(task)
 
             elif data.get("server"):
+                work_log.debug(str(data))
                 server = data.get("server")
                 port = data.get("port")
                 info = WeblogicManagerSingle(server, port)
