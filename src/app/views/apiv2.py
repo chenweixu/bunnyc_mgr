@@ -17,7 +17,8 @@ work_log = My_log(logfile, log_evel).get_log()
 
 @app.route("/")
 def index():
-    data = app.config['RUN_MODEL']
+    # data = app.config['RUN_MODEL']
+    data = 'Hello cwx!'
     return str(data), 200
 
 

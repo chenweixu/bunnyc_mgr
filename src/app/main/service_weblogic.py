@@ -477,7 +477,6 @@ class WeblogicManagerSingle(object):
         return data
 
 
-
     def run_task(self, task):
         work_log.info('weblogic service task: %s , host: %s port: %s' % (task, self.ip, self.port))
         if self.port and self.port >= 17101 and self.port <= 17106:
@@ -487,7 +486,7 @@ class WeblogicManagerSingle(object):
                 elif task == "stop":
                     return self.stop_weblogic_single_service()
                 elif task == "reboot":
-                    return self.reboot_weblogic_single_service
+                    return self.reboot_weblogic_single_service()
                 elif task == "accesslog":
                     return self.showlogaccess()
                 elif task == "projectlog":

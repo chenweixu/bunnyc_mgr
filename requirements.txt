@@ -1,0 +1,10 @@
+Flask==1.0.2
+Jinja2==2.10
+# Markdown==2.6.11
+pymemcache==2.1.0
+PyYAML==5.1b3
+requests==2.21.0
+# paramiko==2.4.1
+suds-jurko==0.6
+# Flask-Cors==3.0.6
+redis==3.2.0
