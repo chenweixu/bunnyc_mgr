@@ -84,9 +84,9 @@ mc = MemCachedManager("10.2.1.67", '21101')
 # mc.post('stop')
 # mc.post('reboot')
 # mc.post('link_sum')
-mc.get("name")
 
+
+mc.get("name")
 mc.post('cleardata')
-
 mc.get("name")
-# mc.set("name","chenwx")
+mc.set("name","chenwx")

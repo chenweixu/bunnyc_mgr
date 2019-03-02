@@ -21,6 +21,36 @@ def index():
     return str(data), 200
 
 
+@app.route('/api/v2/sms', methods=['GET', 'POST'])
+def sms_send():
+    if request.method == 'GET':
+        work_log.debug(str(request.path))
+
+        phone = request.args.get('phone')
+        if not phone:
+            return 'error', 404
+        else:
+            body = request.args.get('body')
+            work_log.info(str(body))
+
+            phone_list = phone.split(',')
+            work_log.debug(str(phone_list))
+
+            sms = Sms_tools()
+
+            data = sms.send_mess(phone_list, body)
+            if data == 1:
+                work_log.error('link sms webservice interface error')
+                return '', 510
+            elif data == 2:
+                work_log.error('webservice interface args error')
+                return '', 511
+            else:
+                work_log.debug(str('sms_send yes-------------'))
+                return '', 200
+    else:
+        return 'error', 404
+
 @app.route("/api/v2/host", methods=["GET", "POST"])
 def v2_host():
     work_log.debug(str(request.path))

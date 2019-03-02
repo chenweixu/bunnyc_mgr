@@ -54,21 +54,21 @@ class Nginx(object):
 
 
 nginx = Nginx()
-nginx.single_nginx("10.2.1.67", "start")
 nginx.single_nginx("10.2.1.67", "stop")
+nginx.single_nginx("10.2.1.67", "start")
 nginx.single_nginx("10.2.1.67", "reload")
 nginx.single_nginx("10.2.1.67", "restart")
 nginx.single_nginx("10.2.1.67", "show_access_log")
 nginx.single_nginx("10.2.1.67", "show_error_log")
 nginx.single_nginx("10.2.1.67", "clear_access_log")
 
-nginx.lock_nginx("lock", '3.1.1.9')
-nginx.show_lock()
+# nginx.lock_nginx("lock", '3.1.1.9')
+# nginx.show_lock()
 
-nginx.restart('10.2.1.68')
-nginx.stop_nginx('10.2.1.67')
-nginx.stop_nginx('10.2.1.68')
+# nginx.restart('10.2.1.68')
+# nginx.stop_nginx('10.2.1.67')
+# nginx.stop_nginx('10.2.1.68')
 
-nginx.show_access_log('10.2.1.68')
-nginx.show_error_log('10.2.1.68')
-nginx.clear_access_log('10.2.1.68')
+# nginx.show_access_log('10.2.1.68')
+# nginx.show_error_log('10.2.1.68')
+# nginx.clear_access_log('10.2.1.68')

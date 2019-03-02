@@ -31,6 +31,6 @@ class checl_web_url(object):
         print(r.text)
         return r.status_code
 
-# web = checl_web_url()
-# web.get_url_status('http://www.baidu.com')
+web = checl_web_url()
+web.get_url_status('http://www.baidu.com')
 # web.get_url_status('http://10.21.43.2')
