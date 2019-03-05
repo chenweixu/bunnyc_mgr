@@ -1,14 +1,9 @@
 #!/bin/bash
-# 0.4           2018-11-30 05:39:25
-# 0.5           2019-01-15 10:31:11
-# 0.6           2019-03-02 23:10:48
+# 1.0.4         2018-11-30 05:39:25
 work_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# $work_dir/conf/devel.sh
-$work_dir/conf/produce.sh
-
-version=0.6
-container=bmgr
+version=1.0.1
+container=bmgr_platform
 img_dir=/data/share/docker_images
 
 img_file=$img_dir/chenwx_${container}_${version}.tar
@@ -19,8 +14,7 @@ docker rmi chenwx/$container:$version
 rm $img_dir/chenwx_$container_$version.tar
 
 #------------------------------------------------
-rm src/log/work.log
-echo '-------------------------build start--------------------'
+
 docker build -t chenwx/$container:$version -f $work_dir/dockerfile .
 
 sleep 2

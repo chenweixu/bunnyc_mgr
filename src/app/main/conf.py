@@ -18,7 +18,7 @@ def conf_data(style, *args):
 
     conf_file = Path(__file__).parent.parent.parent / 'conf/conf.yaml'
 
-    data = yaml.load(conf_file.read_text())
+    data = yaml.load(conf_file.read_text(), Loader=yaml.FullLoader)
 
     if not args:
         return data.get(style)

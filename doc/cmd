@@ -1,0 +1,1 @@
+docker run --name bmgr -h bmgr --net="host" -d chenwx/bmgr:0.6
