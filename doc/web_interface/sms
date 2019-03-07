@@ -7,3 +7,6 @@ body
 多用户:
 phone: 1500000000,1500000001,1500000002
 body
+
+
+curl -i 'http://127.0.0.1:9002/api/v2/sms?phone=15001010101&body=testsms'
