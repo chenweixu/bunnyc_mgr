@@ -8,3 +8,4 @@ requests==2.21.0
 suds-jurko==0.6
 # Flask-Cors==3.0.6
 redis==3.2.0
+PyMySQL==0.9.3

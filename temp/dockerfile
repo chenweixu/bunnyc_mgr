@@ -1,8 +1,0 @@
-# 2018-09-18 11:11:39
-# Version: 0.01
-# opsmgr
-
-FROM chenwx/python:3
-MAINTAINER chenwx "chenwx@asiainfo-sec.com"
-
-RUN apk add py3-paramiko
