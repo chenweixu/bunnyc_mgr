@@ -158,34 +158,38 @@ class WeblogicManagerSingle(object):
 
 class WeblogicManagerGroup(object):
     """docstring for WeblogicManagerGroup"""
-    def __init__(self):
+    def __init__(self, group):
         super(WeblogicManagerGroup, self).__init__()
+        self.group = group
 
-    def list_service_group(self):
-        data = conf_data("app_group")
-        new_data = {}
-        for i in data:
-            new_data[i] = list(data.get(i).keys())
-        return new_data
-
-    # def start_weblogic_single_service(ip, serid):
-    #     server = WeblogicManagerSingle(ip, serid)
-    #     server.start_weblogic_single_service()
+    def get_group_host(self):
+        info = conf_data("app_group", self.group)
+        return info.keys()
 
     def start_single_host(self, ip):
         server = WeblogicManagerSingle(ip)
-        server.start_wg_single()
+        data = server.start_wg_single()
+        data['ip'] = ip
+        if data.get('recode') != 0:
+            data['redata'] = 'error'
+        else:
+            data['redata'] = 'success'
+        return data
 
     def stop_single_host(self, ip):
         server = WeblogicManagerSingle(ip)
-        server.stop_wg_single()
+        data = server.stop_wg_single()
+        data['ip'] = ip
+        if data.get('recode') != 0:
+            data['redata'] = 'error'
+        else:
+            data['redata'] = 'success'
+        return data
 
-    def start_wg_group(self, group_name):
-        host_list = self.get_group_host(group_name)
+    def start_wg_group(self):
         info = []
         pool = Pool(processes=10)
-
-        for ip in host_list:
+        for ip in self.get_group_host():
             info.append(pool.apply_async(self.start_single_host, (ip,)))
         pool.close()
         pool.join()
@@ -195,12 +199,10 @@ class WeblogicManagerGroup(object):
             data.append(i.get())
         return data
 
-    def stop_wg_group(self, group_name):
-        host_list = self.get_group_host(group_name)
+    def stop_wg_group(self):
         info = []
         pool = Pool(processes=10)
-
-        for ip in host_list:
+        for ip in self.get_group_host():
             info.append(pool.apply_async(self.stop_single_host, (ip,)))
         pool.close()
         pool.join()
@@ -210,80 +212,31 @@ class WeblogicManagerGroup(object):
             data.append(i.get())
         return data
 
-
-    # def start_wg_group(self, host_list):
-    #     # 并行 启动多个主机上的6服务
-    #     info = []
-    #     pool = Pool(processes=16)
-
-    #     for ip, serid in itertools.product(host_list, range(1, 7)):
-    #         info.append(
-    #             pool.apply_async(self.start_weblogic_single_service, (ip, serid))
-    #         )
-    #     pool.close()
-    #     pool.join()
-
-    #     data = []
-    #     for i in info:
-    #         data.append(i.get())
-    #     return data
-
-
-    # def stop_wg_group(self, host_list):
-    #     # 并行 停止多个主机上的服务
-    #     info = []
-    #     pool = Pool(processes=16)
-
-    #     for ip, serid in itertools.product(host_list, range(1, 7)):
-    #         info.append(
-    #             pool.apply_async(self.stop_weblogic_single_service, (ip, serid))
-    #         )
-    #     pool.close()
-    #     pool.join()
-
-    #     data = []
-    #     for i in info:
-    #         data.append(i.get())
-    #     return data
-
-    def get_group_host(self, group):
-        info = conf_data("app_group", group)
-        new_data = []
-        work_log.debug(str(new_data))
-        for i in info:
-            new_data.append(i)
-        return new_data
-
-    def group_task_to_data(self, data):
-        tmp1 = 0
-        error_service = ""
-        for i in data:
-            if i[-1] == 0:
-                tmp1 += 1
-            else:
-                error_service += str(i[1]) + " "
-
-        if tmp1 == len(data):
-            return {"recode": 0, "redata": "all success"}
+    def checkRunData(self, data):
+        if data.get('recode') == 0:
+            return 0
         else:
-            return {
-                "recode": 5,
-                "redata": "not all success, error service: " + error_service.rstrip(),
-            }
+            return 1
 
-    def run_task_group(self, task, group):
-        work_log.debug("weblogic task: " + str(task))
-        work_log.debug("weblogic group: " + str(group))
-        host_list = self.get_group_host(group)
-        if task == "start":
-            data = self.start_wg_group(host_list)
-            new_data = self.group_task_to_data(data)
-        elif task == "stop":
-            data = self.stop_wg_group(host_list)
-            new_data = self.group_task_to_data(data)
-        elif task == "check":
-            pass
-        return new_data
+    def run_task_group(self, task):
+        work_log.debug(f"weblogic group: {self.group}, task: {task}")
+        try:
+            if task == "start":
+                data = self.start_wg_group()
+            elif task == "stop":
+                data = self.stop_wg_group()
+            elif task == "check":
+                pass
+
+            if any(map(self.checkRunData,data)):
+                return {'recode': 2, 'redata': data}
+            else:
+                return {'recode': 0, 'redata': data}
+
+        except Exception as e:
+            work_log.error('run_task_group task error')
+            work_log.error(str(e))
+            return {'recode': 9, "redata": str(e)}
 
 class WeblogicManagerCheck(object):
     """docstring for WeblogicManagerCheck"""

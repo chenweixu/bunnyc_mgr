@@ -45,8 +45,23 @@ class Memcached(object):
             connect_timeout=2,
         )
 
+    def bytesDictToStrDict(self, data):
+        new_data = {}
+        for k,v in data.items():
+            key = k
+            value = v
+            if isinstance(k,bytes):
+                key = k.decode()
+            if isinstance(v,bytes):
+                value = v.decode()
+            new_data[key] = value
+        return new_data
+
     def stats(self):
         return self.mc.stats()
+
+    def stats_str(self):
+        return(self.bytesDictToStrDict(self.mc.stats()))
 
     def get(self, key):
         data = self.mc.get(key.encode())

@@ -33,25 +33,14 @@ class Memcached_single(object):
             return str(e)
 
     def start(self):
-        cmd = ''.join([self.service_script, 'memcached','start', str(self.port)])
+        cmd = ' '.join([self.service_script, 'memcached','start', str(self.port)])
         work_log.debug("start_mc: %s" % cmd)
         return self._mc_ssh_cmd(cmd)
 
     def stop(self):
-        cmd = ''.join([self.service_script, 'memcached','stop', str(self.port)])
+        cmd = ' '.join([self.service_script, 'memcached','stop', str(self.port)])
         work_log.debug("stop_mc: %s" % cmd)
         return self._mc_ssh_cmd(cmd)
-
-    def reboot(self):
-        a = self.stop()
-        if a != 0:
-            return a
-        time.sleep(1)
-        b = self.start()
-        if b == 0:
-            return 0
-        else:
-            return b
 
     def run(self):
         pass
@@ -94,65 +83,12 @@ class MemcachedGroup(object):
             data.append((host, port, status))
         return data
 
-    def reboot_mc_group(self):
-        self.stop_mc_group()
-        time.sleep(2)
-        data = self.start_mc_group()
-        return data
 
-
-class MemcachedManagerSingle(object):
-    """docstring for MemcachedManagerSingle"""
+class MemcachedDataSingle(object):
+    """docstring for MemcachedDataSingle"""
 
     def __init__(self, ip, port):
-        super(MemcachedManagerSingle, self).__init__()
-        self.ip = ip
-        self.port = port
-
-    def run_task(self, task):
-        server = Memcached_single(self.ip, self.port)
-        if task == "start":
-            recode = server.start()
-            if recode == 0:
-                return {"recode": recode, "redata": "exec success"}
-            else:
-                return {"recode": 99, "redata": recode}
-        if task == "stop":
-            recode = server.stop()
-            if recode == 0:
-                return {"recode": recode, "redata": "exec success"}
-            else:
-                return {"recode": 99, "redata": recode}
-
-        if task == "reboot":
-            recode = server.reboot()
-            if recode == 0:
-                return {"recode": recode, "redata": "exec success"}
-            else:
-                return {"recode": 99, "redata": recode}
-
-
-class MemcachedManagerGroup(object):
-    """docstring for MemcachedManagerGroup"""
-
-    def __init__(self, group):
-        super(MemcachedManagerGroup, self).__init__()
-        self.group = group
-
-    def run_task(self, task):
-        if task == "start":
-            pass
-        if task == "stop":
-            pass
-        if task == "reboot":
-            pass
-
-
-class MemcachedDataManager(object):
-    """docstring for MemcachedDataManager"""
-
-    def __init__(self, ip, port):
-        super(MemcachedDataManager, self).__init__()
+        super(MemcachedDataSingle, self).__init__()
         self.mc = Memcached(ip, port)
 
     def get(self, key):
@@ -168,7 +104,70 @@ class MemcachedDataManager(object):
         return {"recode": 0, "redata": self.mc.show_stats(key)}
 
     def stats(self):
-        return {"recode": 0, "redata": self.mc.stats()}
+        try:
+            data = self.mc.stats_str()
+            work_log.info(data)
+            return {"recode": 0, "redata": data}
+        except Exception as e:
+            work_log.error('get memcached data error')
+            work_log.error(str(e))
+            return {"recode": 9, "redata": "error"}
+
+
+    def run_task(self, task):
+        if task == "stats":
+            return {"recode": 0, "redata": self.mc.stats()}
+        if task == "info":
+            return {"recode": 0, "redata": self.mc.stats()}
+
+
+class MemcachedManagerSingle(object):
+    """docstring for MemcachedManagerSingle"""
+
+    def __init__(self, ip, port):
+        super(MemcachedManagerSingle, self).__init__()
+        self.ip = ip
+        self.port = port
+
+    def run_task(self, task):
+        server = Memcached_single(self.ip, self.port)
+        if task == "start":
+            recode = server.start()
+            if recode == 0:
+                return {"recode": recode, "redata": "success"}
+            else:
+                return {"recode": 9, "redata": "exec error"}
+        elif task == "stop":
+            recode = server.stop()
+            if recode == 0:
+                return {"recode": recode, "redata": "success"}
+            else:
+                return {"recode": 9, "redata": "exec error"}
+        elif task == "stats":
+            info = MemcachedDataSingle(self.ip, self.port)
+            return info.stats()
+        elif task == "info":
+            info = MemcachedDataSingle(self.ip, self.port)
+            return info.stats()
+
+# class MemcachedManagerGroup(object):
+#     """docstring for MemcachedManagerGroup"""
+
+#     def __init__(self, group):
+#         super(MemcachedManagerGroup, self).__init__()
+#         self.group = group
+
+#     def run_task(self, task):
+#         if task == "start":
+#             pass
+#         if task == "stop":
+#             pass
+#         if task == "reboot":
+#             pass
+
+
+
+
 
     # def get_connections_sum(self):
     #     return {"recode": 0, "redata": self.mc.get_connections_sum()}

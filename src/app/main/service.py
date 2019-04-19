@@ -2,7 +2,7 @@ from app.utils.mylog import My_log
 from app.main.conf import conf_data
 from app.main.services.web import CheckWebInterface
 from app.main.services.memcached import MemcachedManagerSingle
-from app.main.services.memcached import MemcachedDataManager
+from app.main.services.memcached import MemcachedDataSingle
 from app.main.services.nginx import NginxManager
 from app.main.services.weblogic import WeblogicManagerSingle
 from app.main.services.weblogic import WeblogicManagerGroup
@@ -65,19 +65,28 @@ class Service(object):
 
         if unit == "memcached":
             try:
-                if task in ["start", "stop", "reboot"]:
-                    info = MemcachedManagerSingle(data.get("server"), data.get("port"))
+                server = data.get("server")
+                port = data.get("port")
+
+                if data.get("port") == "all":
+                    pass
+                if task in ["start", "stop", "stats", "info"]:
+                    info = MemcachedManagerSingle(server, port)
                     return info.run_task(task)
-                elif task in ["get", "set", "cleardata", "link_sum"]:
-                    info = MemcachedDataManager(data.get("server"), data.get("port"))
-                    if task == "get":
-                        return info.get(data.get("key"))
-                    elif task == "set":
-                        return info.set(data.get("key"), data.get("value"))
-                    elif task == "cleardata":
-                        return info.clear_data()
-                    elif task == "link_sum":
-                        return info.showstatus("curr_connections")
+                # elif task in []:
+                #     info = MemcachedDataSingle(server, port)
+                #     return info.run_task(task)
+
+                # elif task in ["get", "set", "cleardata", "link_sum"]:
+                #     info = MemcachedDataSingle(data.get("server"), data.get("port"))
+                #     if task == "get":
+                #         return info.get(data.get("key"))
+                #     elif task == "set":
+                #         return info.set(data.get("key"), data.get("value"))
+                #     elif task == "cleardata":
+                #         return info.clear_data()
+                #     elif task == "link_sum":
+                #         return info.showstatus("curr_connections")
                 else:
                     return {"recode": 1, "redata": "format error"}
             except Exception as e:
