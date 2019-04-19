@@ -1,4 +1,4 @@
-from app.main.util.mylog import My_log
+from app.utils.mylog import My_log
 from app.main.network_manager import NetworkManager
 from app.main.hostshell import HostBaseCmd
 from app.main.conf import conf_data

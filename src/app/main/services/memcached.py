@@ -1,9 +1,9 @@
 import time
+from app.utils.mylog import My_log
+from app.utils.memcached import Memcached
 from app.main.conf import conf_data
-from app.main.util.mylog import My_log
 from app.main.hostshell import HostBaseCmd
 from app.main.hostshell import HostGroupCmd
-from app.main.util.memcached import Memcached
 
 logfile = conf_data("work_log")
 log_evel = conf_data("log_level")
@@ -18,9 +18,7 @@ class Memcached_single(object):
         self.ip = ip
         self.port = port
         self.user = conf_data("user_info", "default_user")
-        self.pidfile = conf_data("service_info", "memcached", "pidfile")
-        self.start_cmd = conf_data("service_info", "memcached", "start_cmd")
-        self.stop_cmd = conf_data("service_info", "memcached", "stop_cmd")
+        self.service_script = conf_data("service_info", "local_service_script")
 
     def _mc_ssh_cmd(self, cmd):
         work_log.info("_mc_ssh_cmd host: %s cmd: %s" % (self.ip, cmd))
@@ -35,15 +33,12 @@ class Memcached_single(object):
             return str(e)
 
     def start(self):
-        mc_pidfile = self.pidfile.replace("1111", str(self.port))
-        cmd1 = self.start_cmd.replace("mc_port", str(self.port))
-        cmd = cmd1.replace("mc_pidfile", mc_pidfile)
+        cmd = ''.join([self.service_script, 'memcached','start', str(self.port)])
         work_log.debug("start_mc: %s" % cmd)
         return self._mc_ssh_cmd(cmd)
 
     def stop(self):
-        mc_pidfile = self.pidfile.replace("1111", str(self.port))
-        cmd = self.stop_cmd.replace("mc_pidfile", mc_pidfile)
+        cmd = ''.join([self.service_script, 'memcached','stop', str(self.port)])
         work_log.debug("stop_mc: %s" % cmd)
         return self._mc_ssh_cmd(cmd)
 
@@ -111,10 +106,6 @@ class MemcachedManagerSingle(object):
 
     def __init__(self, ip, port):
         super(MemcachedManagerSingle, self).__init__()
-        self.user = conf_data("user_info", "default_user")
-        self.pidfile = conf_data("service_info", "memcached", "pidfile")
-        self.start_cmd = conf_data("service_info", "memcached", "start_cmd")
-        self.stop_cmd = conf_data("service_info", "memcached", "stop_cmd")
         self.ip = ip
         self.port = port
 

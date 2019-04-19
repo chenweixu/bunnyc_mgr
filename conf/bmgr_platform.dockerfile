@@ -7,7 +7,7 @@
 FROM chenwx/python:3
 MAINTAINER chenwx "chenwx716@163.com"
 
-RUN apk add py3-paramiko py3-cffi py3-cryptography
+RUN apk add --no-cache py3-paramiko py3-cffi py3-cryptography
 
 ADD requirements.txt /usr/local/requirements.txt
 

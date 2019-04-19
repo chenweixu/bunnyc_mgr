@@ -6,7 +6,7 @@ __author__ = "chenwx"
 import hashlib
 from suds.client import Client
 from app.main.conf import conf_data
-from app.main.util.mylog import My_log
+from app.utils.mylog import My_log
 
 logfile = conf_data("work_log")
 log_evel = conf_data("log_level")

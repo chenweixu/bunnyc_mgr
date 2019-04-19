@@ -1,4 +1,4 @@
-from app.main.util.mylog import My_log
+from app.utils.mylog import My_log
 from app.main.hostshell import HostBaseCmd
 from app.main.conf import conf_data
 
@@ -16,7 +16,7 @@ class HostTask(object):
 
     def run(self):
         if self.data.get("task") == "remote" and self.data.get("unit"):
-            ip = self.data.get("ip")
+            ip = self.data.get("server")
             info = HostBaseCmd(ip)
             new_data = info.runtask(task=self.data.get("unit"))
             return new_data

@@ -1,0 +1,9 @@
+
+# conf_staff
+id,         数据库主键
+ou,         组织,
+name,       姓名
+phone,      手机号码
+email,      邮箱
+type,       职务类型
+

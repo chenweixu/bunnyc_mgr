@@ -1,6 +1,11 @@
 DEBUG = True
 
-HOST = '10.2.1.5'
+HOST = '127.0.0.1'
 PORT = 9002
 
 RUN_MODEL = 'devel'
+
+BUNNYC_MYSQL_URL = '10.2.1.5'
+BUNNYC_MYSQL_USER = 'bunnyc'
+BUNNYC_MYSQL_PW = 'passw8rd'
+BUNNYC_MYSQL_DB = 'bunnyc'

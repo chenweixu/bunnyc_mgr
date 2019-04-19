@@ -1,6 +1,6 @@
 import requests
 from app.main.conf import conf_data
-from app.main.util.mylog import My_log
+from app.utils.mylog import My_log
 from multiprocessing import Pool
 
 logfile = conf_data("work_log")

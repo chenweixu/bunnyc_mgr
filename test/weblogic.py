@@ -7,7 +7,7 @@ __author__ = "chenwx"
 import json
 import requests
 
-app_url = "http://10.2.1.5:9002"
+app_url = "http://127.0.0.1:9002"
 
 service_url = app_url + "/api/v2/service"
 
@@ -75,8 +75,8 @@ class WenlogicGroup(object):
 
 
 w1 = WeblogicOne("10.2.1.67", 17101)
-# w1.run_task('start')
-# w1.run_task('stop')
+w1.run_task('start')
+w1.run_task('stop')
 w1.run_task("reboot")
 # w1.run_task('accesslog')
 # w1.run_task('projectlog')

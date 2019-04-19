@@ -1,0 +1,40 @@
+
+# conf_host
+id,             数据库主键
+ip_v4,          主地址
+ip_v6,          主地址v6
+ip_v4_m,        管理地址
+name,           主机别名
+operating_system,       操作系统
+hostname,               osname
+
+cpu_number,             CPU核心数
+memory_size,            内存大小g
+
+sn,                     serial number
+address,                地理位置
+belong_machineroom,     机房
+rack,                   机柜
+manufacturer,           设备厂商
+dev_type,               设备型号
+dev_category,           设备类别
+    服务器
+    网络设备
+
+produce,        是否生产环境
+    0           生产
+    1           否
+
+level,
+    1 业务-核心-关键
+    2 业务-核心-普通（有集群环境，宕机安全）
+    3 业务-普通-不影响业务
+    4 测试-核心（联调环境）
+    5 测试-普通（纯内部测试）
+    6 管理
+    9 空闲
+
+info            备注
+
+
+

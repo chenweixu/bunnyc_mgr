@@ -1,6 +1,6 @@
 import re
 from app.main.conf import conf_data
-from app.main.util.mylog import My_log
+from app.utils.mylog import My_log
 from app.main.hostshell import HostBaseCmd
 from app.main.hostshell import HostGroupCmd
 
@@ -17,6 +17,8 @@ class NginxManager(object):
         self.user = conf_data("user_info", "default_user")
 
     def __ssh_cmd(self, host, cmd):
+        work_log.info('exec remote cmd nginx')
+        work_log.info(cmd)
         a = HostBaseCmd(host, self.user)
         status, data = a.ssh_cmd(cmd, stdout=True)
         return status, data
@@ -50,12 +52,13 @@ class NginxManager(object):
         else:
             return {"recode": 1, "redata": "req format error"}
 
-        cmd2 = "/opt/nginx/sbin/nginx -s reload"
         hosts = conf_data("service_info", "nginx", "dmz")
+        service_script = conf_data("service_info", "local_service_script")
+        reload_cmd = ' '.join([service_script, 'nginx','reload'])
 
         info = HostGroupCmd(self.user, hosts)
         data1 = info.run(cmd1)
-        data2 = info.run(cmd2)
+        data2 = info.run(reload_cmd)
 
         work_log.info("lock_ip run info: %s" % data1)
         work_log.info("lock_ip run info: %s" % data2)
@@ -67,8 +70,12 @@ class NginxManager(object):
     def nginx_task(self, ip, task):
         work_log.debug("nginx_task task: " + str(task))
         start_cmd = conf_data("service_info", "nginx", "start_cmd")
-        stop_cmd = conf_data("service_info", "nginx", "stop_cmd")
-        reload_cmd = conf_data("service_info", "nginx", "reload_cmd")
+
+        service_script = conf_data("service_info", "local_service_script")
+        start_cmd = ' '.join([service_script, 'nginx','start'])
+        stop_cmd = ' '.join([service_script, 'nginx','stop'])
+        reload_cmd = ' '.join([service_script, 'nginx','reload'])
+
         nginx_access_log = conf_data("service_info", "nginx", "nginx_access_log")
         nginx_error_log = conf_data("service_info", "nginx", "nginx_error_log")
 

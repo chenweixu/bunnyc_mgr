@@ -7,6 +7,9 @@ def conf_data(style, *args):
     if style == "work_dir":
         return str(Path(__file__).parent.parent)
 
+    if style == "work_conf_dir":
+        return str(Path(__file__).parent.parent.parent / "conf/")
+
     if style == "work_log_dir":
         return str(Path(__file__).parent.parent.parent / "log/")
 

@@ -1,5 +1,5 @@
-from app.main.util.ssh import Myssh
-from app.main.util.mylog import My_log
+from app.utils.ssh import Myssh
+from app.utils.mylog import My_log
 from app.main.conf import conf_data
 from multiprocessing import Pool
 
@@ -22,7 +22,7 @@ class HostBaseCmd(Myssh):
         self.ip = ip
 
         if key:
-            ssh_key = conf_data("work_dir") + "/conf/" + key
+            ssh_key = conf_data("work_conf_dir") +'/'+ key
 
         if ssh_key and not scp:
             Myssh.__init__(self, ip, ssh_user, keys=ssh_key, port=ssh_port)
@@ -79,10 +79,10 @@ class HostBaseCmd(Myssh):
         if task and not cmd:
             if task == "disk":
                 cmd = "df -h"
-            if task == "mem":
+            if task == "ram":
                 cmd = "free -g"
             if task == "netlistening":
-                cmd = "netstat -tnlp"
+                cmd = "/usr/sbin/ss -tnl"
             if task == "netss":
                 cmd = "/usr/sbin/ss -s"
             if task == "uptime":
@@ -90,12 +90,12 @@ class HostBaseCmd(Myssh):
             if task == "netrxtx":
                 cmd = "sar -n DEV 1 3"
             if task == "vmstat":
-                cmd = "vmstat 1 5 -t -S M"
+                cmd = "vmstat 1 8 -t -S M"
             if task == "cpu":
                 cmd = "sar -u 1 3"
         recode, data = self.ssh_cmd(cmd, stdout=True)
 
-        newdata = {"ip": self.ip, "data": data, "recode": recode}
+        newdata = { "recode": recode, "redata": data}
         return newdata
 
     def net_port_scan(self, ip, port):
