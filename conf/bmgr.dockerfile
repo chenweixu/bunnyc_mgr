@@ -2,7 +2,7 @@
 # Version: 0.1
 # bmgr
 
-FROM chenwx/bmgr_platform:0.1
+FROM chenwx/bmgr_platform:0.2
 LABEL author="chenwx"
 LABEL version="0.1"
 
