@@ -84,6 +84,14 @@ class WeblogicManagerSingle(object):
         else:
             return {"recode": run_data[0], "redata": run_data[1]}
 
+    def showgclog(self):
+        cmd = ' '.join([self.service_script, 'weblogic', 'gclog', str(int(self.port) - 17100)])
+        run_data = self._weblogic_ssh_cmd(cmd)
+        if run_data[0] == 0:
+            return {"recode": run_data[0], "redata": run_data[1]}
+        else:
+            return {"recode": run_data[0], "redata": run_data[1]}
+
     def start_wg_single(self):
         # 并行 启动单个主机上的6个服务
         cmd = ' '.join([self.service_script, 'weblogic', 'start_group'])
@@ -118,6 +126,8 @@ class WeblogicManagerSingle(object):
                     return self.showlogaccess()
                 elif task == "projectlog":
                     return self.showprojectlog()
+                elif task == "gclog":
+                    return self.showgclog()
                 elif task == "check":
                     pass
             except Exception as e:
