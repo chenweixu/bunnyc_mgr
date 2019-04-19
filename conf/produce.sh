@@ -22,4 +22,4 @@ docker build -t chenwx/$container:$version -f conf/bmgr.dockerfile .
 # docker run --name $container -h $container --net="host" -d chenwx/$container:$version
 # docker run --name $container -h $container --net="host" -d chenwx/$container:1.0.2
 
-# docker run --name bmgr -h bmgr --net="host" -d chenwx/bmgr:1.0.4
+# docker run --name bmgr -h bmgr --net="host" -d chenwx/bmgr:0.2
