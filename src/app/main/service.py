@@ -1,3 +1,4 @@
+import re
 from app.utils.mylog import My_log
 from app.main.conf import conf_data
 from app.main.services.web import CheckWebInterface
@@ -21,19 +22,19 @@ class Service(object):
         super(Service, self).__init__()
 
     def check_url(self, url):
-        if not url:
-            work_log.error("args error")
-            return 404
         work_log.info("checkweburl: " + str(url))
         try:
             info = CheckWebInterface()
             recode = info.get_url_status_code(url, timeout=2)
             work_log.debug(str(recode))
-            return recode
+            if recode == 200:
+                return {"recode": 0, "redata": "success 成功"}
+            else:
+                return {"recode": recode, "redata": "error"}
         except Exception as e:
             work_log.error("checkweburl error")
             work_log.error(str(e))
-            return 498
+            return {"recode": 9, "redata": "server error"}
 
     def run_task(self, data):
         work_log.debug(str(data))
@@ -41,27 +42,42 @@ class Service(object):
         task = data.get("task")
 
         if unit == "nginx":
-            if data.get("server"):
-                server = data.get("server")
-                work_log.debug("nginx task: %s, server: %s " % (str(task), str(server)))
+            try:
                 info = NginxManager()
-                data = info.nginx_task(server, task)
-                return data
+                if data.get("server"):
+                    server = data.get("server")
+                    work_log.debug("nginx task: %s, server: %s " % (str(task), str(server)))
+                    data = info.nginx_task(server, task)
+                    return data
 
-            elif task in ["lock", "ulock"]:
-                ip = data.get("ip")
-                work_log.info("nginx task: %s :  ip: %s" % (str(task), str(ip)))
-                info = NginxManager()
-                data = info.lock_ip(ip, task)
-                return data
-            elif task == "showlock":
-                work_log.info("nginx task: showlock")
-                info = NginxManager()
-                data = info.showlock()
-                return data
-            else:
-                work_log.error("recode: 1, req format error")
-                return {"recode": 1, "redata": "req format error"}
+                elif task in ["lock", "ulock"]:
+                    ip = data.get("ip")
+                    if ip not in re.compile("\d+.\d+.\d+.\d+").findall(ip):
+                        return { "recode": 2, "redata": "req format error"}
+                    work_log.info("nginx task: %s :  ip: %s" % (str(task), str(ip)))
+                    data = info.lock_ip(ip, task)
+                    return data
+                elif task == "showlock":
+                    work_log.info("nginx task: showlock")
+                    data = info.showlock()
+                    return data
+                elif task in ["shield", "cancelShield"]:
+                    ip = data.get("ip")
+                    port = data.get("port")
+                    zone = data.get("zone")
+                    work_log.info(f"nginx task: {task},zone: {zone} ip: {ip}, port: {port}")
+                    if task == "shield":
+                        data = info.Shield(zone, ip, port)
+                    elif task == "cancelShield":
+                        data = info.Shield(zone, ip, port, cancel=True)
+                    return data
+                else:
+                    work_log.error("recode: 1, req format error")
+                    return {"recode": 1, "redata": "req format error"}
+            except Exception as e:
+                work_log.error("nginx task error")
+                work_log.error(str(e))
+                return {"recode": 9, "redata": "server run error"}
 
         if unit == "memcached":
             try:
@@ -100,17 +116,27 @@ class Service(object):
             if data.get("group"):
                 group = data.get("group")
                 work_log.debug(group)
-                info = WeblogicManagerGroup(group)
-                data = info.run_task_group(task)
-
+                if group == 'all' and task == 'check':
+                    work_log.debug(f'wg check all service')
+                    info = WeblogicManagerCheck()
+                    return info.check_weblogic_group_interface()
+                elif group != 'all' and task == 'check':
+                    work_log.debug(f'wg check group: {group}')
+                    info = WeblogicManagerCheck()
+                    return info.check_weblogic_group_interface(group)
+                elif group and task in ['start', 'stop']:
+                    info = WeblogicManagerGroup(group)
+                    return info.run_task_group(task)
+                else:
+                    work_log.debug(f'wg check args error')
+                    return {"recode": 9, "redata": "参数错误"}
             elif data.get("server"):
                 work_log.debug(str(data))
                 server = data.get("server")
                 port = data.get("port")
                 info = WeblogicManagerSingle(server, port)
-                data = info.run_task(task)
+                return info.run_task(task)
             else:
-                data = {"recode": 9, "redata": "参数错误"}
-            work_log.info(data)
-            work_log.debug("---------------- weblogic task end ----------------")
-            return data
+                work_log.debug(f'wg check args error')
+                return {"recode": 9, "redata": "参数错误"}
+

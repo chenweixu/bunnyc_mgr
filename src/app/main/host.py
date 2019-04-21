@@ -15,22 +15,21 @@ class HostTask(object):
         self.data = data
 
     def run(self):
-        if self.data.get("task") == "remote" and self.data.get("unit"):
-            ip = self.data.get("server")
+        dest_obj = self.data.get("task")
+        unit = self.data.get("unit")
+        cmd = self.data.get("cmd")
+        ip = self.data.get("ip")
+        if dest_obj == "remote" and unit:
             info = HostBaseCmd(ip)
-            new_data = info.runtask(task=self.data.get("unit"))
+            new_data = info.run_unit_task(unit)
             return new_data
 
-        if self.data.get("task") == "remote" and self.data.get("cmd"):
-            cmd = self.data.get("cmd")
-            ip = self.data.get("ip")
+        if dest_obj == "remote" and cmd:
+            work_log.info(f"remote exec cmd, ip: {ip}, cmd: {cmd}")
             user = self.data.get("user")
-            work_log.info("ip: %s, cmd: %s" % (ip, cmd))
-
             default_user = conf_data("user_info", "default_user")
             if user and user != default_user:
                 return {"recode": 1, "redata": "user error"}
-
             info = HostBaseCmd(ip)
-            new_data = info.runtask(cmd=cmd)
+            new_data = info.run_cmd_task(cmd)
             return new_data

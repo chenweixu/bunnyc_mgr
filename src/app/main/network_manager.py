@@ -40,11 +40,15 @@ class NetworkManager(object):
             re_obj = re.compile("\d+%")
             try:
                 packet_loss = int(re_obj.findall(data)[0].rstrip("%"))
+                work_log.info(str(packet_loss))
+                if packet_loss == 0:
+                    return 0
+                else:
+                    return 4
             except Exception as e:
+                work_log.error('data deal with error')
                 work_log.error(str(e))
                 return 901
-            work_log.info("host_ping_check yes: %s" % ip)
-            return packet_loss
         else:
             work_log.error("ping host error")
             work_log.info("host_ping_check error: %s" % ip)
@@ -86,8 +90,10 @@ class NetworkManager(object):
         recode = self.host_ping_check(ip)
         if recode == 0:
             redata = '成功'
-        elif recode == 901:
+        elif recode == 3:
             redata = '服务器端解析错误'
+        elif recode == 4:
+            redata = '目标不存在'
         else:
             redata = "失败"
         data = {"recode": recode, "redata": redata}

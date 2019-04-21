@@ -23,35 +23,33 @@ class NetWork(object):
         task = data.get("task")
         work_log.debug(str(data))
         if task == "check_port":
-            source_ip = data.get("source")
+            source_ip = data.get("sip")
             des_ip = data.get("ip")
             des_port = data.get("port")
 
-            if source_ip == "localhost":
+            if not source_ip:
+                work_log.debug('local exec remote port test')
                 info = NetworkManager()
                 try:
-                    redata = info.port_scan(des_ip, des_port)
-                    if redata == 0:
-                        recode = 0
+                    recode = info.port_scan(des_ip, des_port)
+                    if recode == 0:
+                        return {"recode": recode, 'redata': '成功'}
+                    elif recode == 1:
+                        return {"recode": 4, 'redata': '主机存在端口不可访问'}
                     else:
-                        recode = 4
+                        return {"recode": 4, 'redata': '目标不能访问'}
                 except Exception as e:
                     work_log.error(str(e))
                     redata = "scan error"
-                    recode = 2
-
-                data = {"recode": recode, 'redata': redata}
-                return data
-            else:
+                    return {"recode": 2, 'redata': '程序错误'}
+            if source_ip:
                 info = HostBaseCmd(source_ip, scp=True)
                 redata = info.net_port_scan(ip=des_ip, port=des_port)
+                work_log.debug("port scan status: "+str(redata))
                 if redata == 0:
-                    recode = 0
+                    return {"recode": 0, 'redata': '探测成功'}
                 else:
-                    recode = 4
-                data = {"recode": recode, 'redata': redata}
-                work_log.debug("port scan status: "+str(data))
-                return data
+                    return {"recode": 4, 'redata': '探测失败'}
 
         elif task == "iptable":
             return {"recode": 1, 'redata': "未开放"}

@@ -74,34 +74,33 @@ class HostBaseCmd(Myssh):
             work_log.error(str(e))
             return False
 
-    def runtask(self, cmd=None, task=None):
+    def run_unit_task(self, task):
         work_log.info(str(task))
-        if task and not cmd:
-            if task == "disk":
-                cmd = "df -h"
-            if task == "ram":
-                cmd = "free -g"
-            if task == "netlistening":
-                cmd = "/usr/sbin/ss -tnl"
-            if task == "netss":
-                cmd = "/usr/sbin/ss -s"
-            if task == "uptime":
-                cmd = "uptime"
-            if task == "netrxtx":
-                cmd = "sar -n DEV 1 3"
-            if task == "vmstat":
-                cmd = "vmstat 1 8 -t -S M"
-            if task == "cpu":
-                cmd = "sar -u 1 3"
+        unit_dict = {
+            "disk": "df -h",
+            "ram": "free -g",
+            "netlistening": "/usr/sbin/ss -tnl",
+            "netss": "/usr/sbin/ss -s",
+            "uptime": "uptime",
+            "netrxtx": "sar -n DEV 1 3",
+            "vmstat": "vmstat 1 8 -t -S M",
+            "cpu": "sar -u 1 3",
+        }
+        cmd = unit_dict.get(task)
         recode, data = self.ssh_cmd(cmd, stdout=True)
-
         newdata = { "recode": recode, "redata": data}
         return newdata
+
+    def run_cmd_task(self, cmd):
+        recode, data = self.ssh_cmd(cmd, stdout=True)
+        newdata = { "recode": recode, "redata": data}
+        return newdata
+
 
     def net_port_scan(self, ip, port):
         try:
             work_dir = conf_data("work_dir")
-            source_file = work_dir + "/main/util/port_scan.py"
+            source_file = work_dir + "/utils/port_scan.py"
             des_file = "/tmp/port_scan.py"
             work_log.debug("copy file to remote")
             self.ssh_file_put(source_file, des_file)

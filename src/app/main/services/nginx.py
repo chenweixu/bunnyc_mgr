@@ -15,6 +15,14 @@ class NginxManager(object):
     def __init__(self):
         super(NginxManager, self).__init__()
         self.user = conf_data("user_info", "default_user")
+        service_script = conf_data("service_info", "local_service_script")
+        self.start_cmd = ' '.join([service_script, 'nginx','start'])
+        self.stop_cmd = ' '.join([service_script, 'nginx','stop'])
+        self.reload_cmd = ' '.join([service_script, 'nginx','reload'])
+        self.nginx_access_log = conf_data("service_info", "nginx", "nginx_access_log")
+        self.nginx_error_log = conf_data("service_info", "nginx", "nginx_error_log")
+        self.master_conf = conf_data("service_info", "nginx", "master_conf")
+        self.deny_conf = conf_data("service_info", "nginx", "deny_conf")
 
     def __ssh_cmd(self, host, cmd):
         work_log.info('exec remote cmd nginx')
@@ -24,7 +32,7 @@ class NginxManager(object):
         return status, data
 
     def showlock(self):
-        cmd = "grep clientRealIp /opt/nginx/conf/deny_ip.conf"
+        cmd = f"grep clientRealIp {self.deny_conf}"
         ip = conf_data("service_info", "nginx", "dmz")[0]
         try:
             recode, data = self.__ssh_cmd(ip, cmd)
@@ -38,65 +46,72 @@ class NginxManager(object):
 
     def lock_ip(self, ip, task):
         if task == "lock":
-            cmd1 = (
-                """sed -i '/clientRealIp/s/")/|"""
-                + ip
-                + """")/' /opt/nginx/conf/deny_ip.conf"""
-            )
+            cmd = f"""sed -i '/clientRealIp/s/")/|{ip}")/' {self.deny_conf}"""
         elif task == "ulock":
-            cmd1 = (
-                """sed -i '/clientRealIp/s/|"""
-                + ip
-                + """//' /opt/nginx/conf/deny_ip.conf"""
-            )
+            cmd = f"""sed -i '/clientRealIp/s/|{ip}//' {self.deny_conf}"""
         else:
             return {"recode": 1, "redata": "req format error"}
 
         hosts = conf_data("service_info", "nginx", "dmz")
-        service_script = conf_data("service_info", "local_service_script")
-        reload_cmd = ' '.join([service_script, 'nginx','reload'])
 
         info = HostGroupCmd(self.user, hosts)
-        data1 = info.run(cmd1)
-        data2 = info.run(reload_cmd)
+        try:
+            data1 = info.run(cmd)
+            data2 = info.run(self.reload_cmd)
+            work_log.info("lock_ip run info: %s" % data1)
+            if max(data1) == 0 and max(data2) == 0:
+                return {"redata": "all yes", "recode": 0}
+            else:
+                return {"redata": "error", "recode": 2}
+        except Exception as e:
+            work_log.error(str(e))
+            return {"recode": 2, "redata": "remote run error"}
 
-        work_log.info("lock_ip run info: %s" % data1)
-        work_log.info("lock_ip run info: %s" % data2)
-        if max(data1) == 0 and max(data2) == 0:
-            return {"redata": "all yes", "recode": 0}
-        else:
-            return {"redata": "error", "recode": 2}
+
+    def Shield(self,zone, ip, port, cancel=None):
+        hosts = conf_data("service_info", "nginx", zone)
+        if not cancel and port !="all":
+            # 屏蔽某个服务
+            cmd = f'sed -i "/{ip}:{port}/s/server/#server/g" {self.master_conf}'
+        elif not cancel and port == "all":
+            # 屏蔽某个主机
+            cmd = f'sed -i "/{ip}/s/server/#server/g" {self.master_conf}'
+        elif cancel and port != "all":
+            # 解除某个服务的屏蔽
+            cmd = f'sed -i "/{ip}:{port}/s/#//g" {self.master_conf}'
+        elif cancel and port == "all":
+            cmd = f'sed -i "/{ip}/s/#//g" {self.master_conf}'
+            # 解除某个主机的屏蔽
+
+        info = HostGroupCmd(self.user, hosts)
+        try:
+            data1 = info.run(cmd)
+            data2 = info.run(self.reload_cmd)
+            return {"recode": 0, "redata": "success"}
+        except Exception as e:
+            work_log.error(str(e))
+            return {"recode": 2, "redata": "remote run error"}
 
     def nginx_task(self, ip, task):
         work_log.debug("nginx_task task: " + str(task))
-        start_cmd = conf_data("service_info", "nginx", "start_cmd")
-
-        service_script = conf_data("service_info", "local_service_script")
-        start_cmd = ' '.join([service_script, 'nginx','start'])
-        stop_cmd = ' '.join([service_script, 'nginx','stop'])
-        reload_cmd = ' '.join([service_script, 'nginx','reload'])
-
-        nginx_access_log = conf_data("service_info", "nginx", "nginx_access_log")
-        nginx_error_log = conf_data("service_info", "nginx", "nginx_error_log")
-
         if task == "start":
-            recode, data = self.__ssh_cmd(ip, start_cmd)
+            recode, data = self.__ssh_cmd(ip, self.start_cmd)
         elif task == "stop":
-            recode, data = self.__ssh_cmd(ip, stop_cmd)
+            recode, data = self.__ssh_cmd(ip, self.stop_cmd)
         elif task == "reload":
-            recode, data = self.__ssh_cmd(ip, reload_cmd)
+            recode, data = self.__ssh_cmd(ip, self.reload_cmd)
         elif task == "restart":
             self.__ssh_cmd(ip, stop_cmd)
-            recode, data = self.__ssh_cmd(ip, start_cmd)
+            recode, data = self.__ssh_cmd(ip, self.start_cmd)
         elif task == "show_access_log":
-            cmd = "tail -n 200 " + nginx_access_log
+            cmd = "tail -n 200 " + self.nginx_access_log
             recode, data = self.__ssh_cmd(ip, cmd)
         elif task == "show_error_log":
-            cmd = "tail -n 200 " + nginx_error_log
+            cmd = "tail -n 200 " + self.nginx_error_log
             recode, data = self.__ssh_cmd(ip, cmd)
 
         elif task == "clear_access_log":
-            cmd = "> " + nginx_access_log
+            cmd = "> " + self.nginx_access_log
             recode, data = self.__ssh_cmd(ip, cmd)
         else:
             return {"recode": 2, "redata": "not found task"}

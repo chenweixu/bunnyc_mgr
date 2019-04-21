@@ -110,14 +110,20 @@ def v2_network():
     work_log.debug(str(request.path))
     work_log.debug("request network interface, ip: %s " % (request.remote_addr))
     if request.method == "GET":
-        ipaddr = request.args.get("host")
-        if not ipaddr:
-            work_log.error(str("req format error"))
-            return "error", 404
-        else:
+        ipaddr = request.args.get("ip")
+        url = request.args.get("url")
+
+        if ipaddr:
             info = NetWork()
             data = info.ping(ipaddr)
             return jsonify(data)
+        elif url:
+            info = Service()
+            data = info.check_url(url)
+            return jsonify(data)
+        else:
+            work_log.error(str("req format error"))
+            return "", 404
 
     elif request.method == "POST":
         try:
