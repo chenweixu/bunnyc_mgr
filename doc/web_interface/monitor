@@ -39,6 +39,15 @@ ip: '10.2.1.5'
 start_time:
 end_time:
 
+'content': {
+    'type': 'host',
+    'unit': 'cpu',
+    'ip': '10.2.1.5',
+    'start_time': ''
+    'end_time': ''
+}
+
+
 4. 指定组，的指定类型最新信息
 type: 'host'
 unit: 'cpu'

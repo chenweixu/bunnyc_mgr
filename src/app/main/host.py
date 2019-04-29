@@ -19,12 +19,14 @@ class HostTask(object):
         unit = self.data.get("unit")
         cmd = self.data.get("cmd")
         ip = self.data.get("ip")
-        if dest_obj == "remote" and unit:
+        if ip and dest_obj == "remote" and unit:
+            work_log.debug(f'remote: {ip} task: {unit}')
             info = HostBaseCmd(ip)
+            work_log.debug(f'remote: {ip} task: {unit}')
             new_data = info.run_unit_task(unit)
             return new_data
 
-        if dest_obj == "remote" and cmd:
+        elif ip and dest_obj == "remote" and cmd:
             work_log.info(f"remote exec cmd, ip: {ip}, cmd: {cmd}")
             user = self.data.get("user")
             default_user = conf_data("user_info", "default_user")
@@ -33,3 +35,6 @@ class HostTask(object):
             info = HostBaseCmd(ip)
             new_data = info.run_cmd_task(cmd)
             return new_data
+        else:
+            work_log.info('req format error')
+            return {'recode': 1, 'redata': 'format error'}

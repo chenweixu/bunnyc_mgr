@@ -15,6 +15,5 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 db = SQLAlchemy(app)
 
-# from app.views import apiv1
 from app.views import apiv2
 # from app.views import apitest

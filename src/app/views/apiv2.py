@@ -76,33 +76,29 @@ def v2_host():
         except Exception as e:
             work_log.error("host run error")
             work_log.error(str(e))
-            return "", 404
+            return jsonify({ "recode": 9, "redata": str(e)})
     else:
         return "", 404
 
 
-@app.route("/api/v2/monitor", methods=["GET", "POST"])
+
+@app.route("/api/v2/monitor", methods=["POST"])
 def v2_monitor():
-    work_log.debug(str(request.path))
     work_log.info("request MonitorTask interface ip: %s" % (request.remote_addr))
-    if request.method == "GET":
-        return "", 404
-    elif request.method == "POST":
-        try:
-            key = request.json.get("key")
-            if verify_key(key) and request.json.get("obj") == 'host':
-                info = MonitorTask(request.json.get('content'))
-                data = info.run()
-                return jsonify(data)
-            else:
-                work_log.error("req verify_key or obj error")
-                return "", 404
-        except Exception as e:
-            work_log.error("req format error")
-            work_log.error(str(e))
+    try:
+        key = request.json.get("key")
+        if verify_key(key) and request.json.get("obj") == 'monitor':
+            info = MonitorTask()
+            data = info.run(request.json.get('content'))
+            return jsonify(data)
+        else:
+            work_log.error("format error")
             return "", 404
-    else:
-        return "", 404
+    except Exception as e:
+        work_log.error(str(e))
+        return jsonify({'recode': 1, 'redata': 'run error'})
+
+
 
 
 @app.route("/api/v2/network", methods=["GET", "POST"])

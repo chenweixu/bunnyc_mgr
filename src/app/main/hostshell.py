@@ -54,11 +54,11 @@ class HostBaseCmd(Myssh):
             if run_stderr:
                 work_log.error("ssh_cmd error, run_stderr")
                 work_log.error(str(run_stderr))
-                return 2
+                return [2, run_stderr.decode("utf-8")]
             else:
                 work_log.debug("ssh_cmd success, run_stdout")
                 work_log.debug(str(run_stdout))
-                return 0
+                return [0, 'success']
         except Exception as e:
             work_log.error("ssh_cmd Exception error")
             work_log.error(str(e))
@@ -75,7 +75,6 @@ class HostBaseCmd(Myssh):
             return False
 
     def run_unit_task(self, task):
-        work_log.info(str(task))
         unit_dict = {
             "disk": "df -h",
             "ram": "free -g",
@@ -87,9 +86,14 @@ class HostBaseCmd(Myssh):
             "cpu": "sar -u 1 3",
         }
         cmd = unit_dict.get(task)
-        recode, data = self.ssh_cmd(cmd, stdout=True)
-        newdata = { "recode": recode, "redata": data}
-        return newdata
+        try:
+            recode, data = self.ssh_cmd(cmd, stdout=True)
+            return { "recode": recode, "redata": data}
+        except Exception as e:
+            work_log.error('run_unit_task error')
+            work_log.error(str(e))
+            return { "recode": 9, "redata": str(e)}
+
 
     def run_cmd_task(self, cmd):
         recode, data = self.ssh_cmd(cmd, stdout=True)
