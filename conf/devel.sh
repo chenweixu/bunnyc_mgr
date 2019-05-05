@@ -7,7 +7,8 @@ cp $work_dir/conf/devel.yaml $work_dir/src/conf/conf.yaml
 cp $work_dir/conf/devel.key $work_dir/src/conf/conf.key
 cp $work_dir/conf/devel.py $work_dir/src/config.py
 
-rm $work_dir/src/log/work.log
+rm $work_dir/src/log/*
+rm $work_dir/src/tmp/*
 
 # version=0.2
 # container=bmgr

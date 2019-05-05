@@ -16,4 +16,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
 
 from app.views import apiv2
+from app.views import file
+from app.views import network
+from app.views import service
+from app.views import sms
 # from app.views import apitest

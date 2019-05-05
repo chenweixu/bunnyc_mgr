@@ -20,7 +20,7 @@ class MonitorTask(object):
     def HostUptimeData(self, data):
         ip = data.get('ip')
         # current_time = time.strftime('%Y-%m-%d %H:%M:%S')
-        old_time = time.strftime('%Y-%m-%d_%X',time.localtime(time.time() - 1800 ))
+        old_time = time.strftime('%Y-%m-%d_%X',time.localtime(time.time() - 3600 ))
 
         abc = db.session.query(
             func.date_format(t_host_cpu.ctime, "%H:%i:%s").label('ctime'),
@@ -57,7 +57,7 @@ class MonitorTask(object):
     def HostCpuData(self, data):
         ip = data.get('ip')
         # current_time = time.strftime('%Y-%m-%d %H:%M:%S')
-        old_time = time.strftime('%Y-%m-%d_%X',time.localtime(time.time() - 1800 ))
+        old_time = time.strftime('%Y-%m-%d_%X',time.localtime(time.time() - 3600 ))
 
         abc = db.session.query(
             func.date_format(t_host_cpu.ctime, "%H:%i:%s").label('ctime'),

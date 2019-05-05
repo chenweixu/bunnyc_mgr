@@ -1,0 +1,16 @@
+methods: post
+
+'obj': 'host',
+'content': {}
+
+1. 远程脚本执行-单机
+task: 'remote_script'
+server:
+script_name:
+script_body:
+
+2. 远程脚本执行-多机
+
+3. 上传文件-单机
+
+4. 上传文件-范围
