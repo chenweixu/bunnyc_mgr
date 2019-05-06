@@ -17,6 +17,7 @@ db = SQLAlchemy(app)
 
 from app.views import apiv2
 from app.views import file
+from app.views import host
 from app.views import network
 from app.views import service
 from app.views import sms
