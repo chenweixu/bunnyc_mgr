@@ -79,12 +79,14 @@ def v2_upload():
                 return "", 404
 
             work_log.info(f'upload file, ip: {ip}, filename: {file.filename}, dest: {destdir}, user: {user}')
+            tmp_dir = conf_data("work_tmp_dir")
             local_tmp = os.path.join(tmp_dir,file.filename)
             dest = os.path.join(destdir,file.filename)
-            file.save(local_tmp)
+            file.save(local_tmp)        # 保存临时文件
 
             info = UpDownFile(ip, user)
             data = info.upload(local_tmp, dest)
+            os.remove(local_tmp)        # 删除临时文件
             return jsonify(data)
 
         except Exception as e:
