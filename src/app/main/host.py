@@ -30,9 +30,9 @@ class HostTask(object):
             work_log.info(f"remote exec cmd, ip: {ip}, cmd: {cmd}")
             user = self.data.get("user")
             default_user = conf_data("user_info", "default_user")
-            if user and user != default_user:
-                return {"recode": 1, "redata": "user error"}
-            info = HostBaseCmd(ip)
+            if not user:
+                user = default_user
+            info = HostBaseCmd(ip, user=user)
             new_data = info.run_cmd_task(cmd)
             return new_data
         else:

@@ -96,9 +96,13 @@ class HostBaseCmd(Myssh):
 
 
     def run_cmd_task(self, cmd):
-        recode, data = self.ssh_cmd(cmd, stdout=True)
-        newdata = { "recode": recode, "redata": data}
-        return newdata
+        try:
+            recode, data = self.ssh_cmd(cmd, stdout=True)
+            return {"recode": recode, "redata": data}
+        except Exception as e:
+            work_log.error('run_cmd_task error')
+            work_log.error(str(e))
+            return jsonify({"recode": 9, "redata": str(e)})
 
 
     def net_port_scan(self, ip, port):
