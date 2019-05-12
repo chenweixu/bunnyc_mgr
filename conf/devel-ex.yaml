@@ -14,6 +14,8 @@ user_info:
     ssh_key: devel.key
   weblogic:
     ssh_key: devel.key
+  weblogic:
+    ssh_key: devel.key
 
 service_info:
   memcached:

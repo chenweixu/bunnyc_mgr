@@ -4,10 +4,11 @@
 # DateTime: 2018-08-04 21:19:45
 __author__ = 'chenwx'
 
+import app.conf.config as config
 from app import app
 
 if __name__ == '__main__':
-    app.config.from_object('config')
+    app.config.from_object(config)
     host = app.config['HOST']
     port = app.config['PORT']
     app.run(host=host, port=port)

@@ -1,13 +1,9 @@
 # my ignore file
-*.pid
-*.log
-*.key
-devel.yaml
-conf.yaml
-produce.yaml
-produce.py
-produce.sh
-tmp/
+conf/produce
+conf/devel
+src/app/conf
+src/tmp
+src/log
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

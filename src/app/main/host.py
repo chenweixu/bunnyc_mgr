@@ -32,9 +32,20 @@ class HostTask(object):
             default_user = conf_data("user_info", "default_user")
             if not user:
                 user = default_user
-            info = HostBaseCmd(ip, user=user)
-            new_data = info.run_cmd_task(cmd)
-            return new_data
+            elif user and user not in conf_data("user_info"):
+                return {'recode': 1, 'redata': 'input user error'}
+
+            try:
+                info = HostBaseCmd(ip, user=user)
+                return info.run_cmd_task(cmd)
+            except AttributeError as e:
+                work_log.error('ssh session create error')
+                work_log.error(str(e))
+                return {'recode': 1, 'redata': 'input format error'}
+            except Exception as e:
+                work_log.error('run_cmd_task error')
+                work_log.error(str(e))
+                return {'recode': 9, 'redata': 'run other error'}
         else:
             work_log.info('req format error')
             return {'recode': 1, 'redata': 'format error'}

@@ -16,9 +16,15 @@ class HostBaseCmd(Myssh):
             ssh_user = conf_data("user_info", "default_user")
         else:
             ssh_user = user
-        ssh_pw = conf_data("user_info", str(ssh_user), "ssh_passwd")
-        key = conf_data("user_info", str(ssh_user), "ssh_key")
-        ssh_port = conf_data("user_info", "ssh_port")
+        try:
+            ssh_pw = conf_data("user_info", str(ssh_user), "ssh_passwd")
+            key = conf_data("user_info", str(ssh_user), "ssh_key")
+            ssh_port = conf_data("user_info", "ssh_port")
+        except Exception as e:
+            work_log.info('ssh arg input error')
+            work_log.info(str(e))
+            raise e
+
         self.ip = ip
 
         if key:

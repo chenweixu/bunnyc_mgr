@@ -3,12 +3,12 @@
 work_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
 cd $work_dir
 
-cp $work_dir/conf/devel.yaml $work_dir/src/conf/conf.yaml
-cp $work_dir/conf/devel.key $work_dir/src/conf/conf.key
-cp $work_dir/conf/devel.py $work_dir/src/config.py
+rm -f $work_dir/src/log/*
+rm -f $work_dir/src/tmp/*
+rm -f $work_dir/src/app/conf/*
 
-rm $work_dir/src/log/*
-rm $work_dir/src/tmp/*
+cp $work_dir/conf/devel/* $work_dir/src/app/conf/
+
 
 # version=0.2
 # container=bmgr
@@ -19,8 +19,6 @@ rm $work_dir/src/tmp/*
 
 # echo '-------------------------build start--------------------'
 # docker build -t chenwx/$container:$version -f conf/bmgr.dockerfile .
-
-
 
 
 # docker run --name $container -h $container --net="host" -d chenwx/$container:$version
