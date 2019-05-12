@@ -16,16 +16,16 @@ class NginxManager(object):
         super(NginxManager, self).__init__()
         self.user = conf_data("user_info", "default_user")
         service_script = conf_data("service_info", "local_service_script")
-        self.start_cmd = ' '.join([service_script, 'nginx','start'])
-        self.stop_cmd = ' '.join([service_script, 'nginx','stop'])
-        self.reload_cmd = ' '.join([service_script, 'nginx','reload'])
+        self.start_cmd = " ".join([service_script, "nginx", "start"])
+        self.stop_cmd = " ".join([service_script, "nginx", "stop"])
+        self.reload_cmd = " ".join([service_script, "nginx", "reload"])
         self.nginx_access_log = conf_data("service_info", "nginx", "nginx_access_log")
         self.nginx_error_log = conf_data("service_info", "nginx", "nginx_error_log")
         self.master_conf = conf_data("service_info", "nginx", "master_conf")
         self.deny_conf = conf_data("service_info", "nginx", "deny_conf")
 
     def __ssh_cmd(self, host, cmd):
-        work_log.info('exec remote cmd nginx')
+        work_log.info("exec remote cmd nginx")
         work_log.info(cmd)
         a = HostBaseCmd(host, self.user)
         status, data = a.ssh_cmd(cmd, stdout=True)
@@ -67,10 +67,9 @@ class NginxManager(object):
             work_log.error(str(e))
             return {"recode": 2, "redata": "remote run error"}
 
-
-    def Shield(self,zone, ip, port, cancel=None):
+    def Shield(self, zone, ip, port, cancel=None):
         hosts = conf_data("service_info", "nginx", zone)
-        if not cancel and port !="all":
+        if not cancel and port != "all":
             # 屏蔽某个服务
             cmd = f'sed -i "/{ip}:{port}/s/server/#server/g" {self.master_conf}'
         elif not cancel and port == "all":
@@ -85,8 +84,8 @@ class NginxManager(object):
 
         info = HostGroupCmd(self.user, hosts)
         try:
-            data1 = info.run(cmd)
-            data2 = info.run(self.reload_cmd)
+            info.run(cmd)
+            info.run(self.reload_cmd)
             return {"recode": 0, "redata": "success"}
         except Exception as e:
             work_log.error(str(e))
@@ -101,7 +100,7 @@ class NginxManager(object):
         elif task == "reload":
             recode, data = self.__ssh_cmd(ip, self.reload_cmd)
         elif task == "restart":
-            self.__ssh_cmd(ip, stop_cmd)
+            self.__ssh_cmd(ip, self.stop_cmd)
             recode, data = self.__ssh_cmd(ip, self.start_cmd)
         elif task == "show_access_log":
             cmd = "tail -n 200 " + self.nginx_access_log

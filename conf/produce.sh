@@ -4,9 +4,9 @@ work_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
 cd $work_dir
 
 #------------------------------------------------
-rm -f $work_dir/src/log/*
-rm -f $work_dir/src/tmp/*
-rm -f $work_dir/src/app/conf/*
+rm -f ${work_dir}/src/log/*
+rm -f ${work_dir}/src/tmp/*
+rm -rf ${work_dir}/src/app/conf/*
 #------------------------------------------------
 mkdir $work_dir/src/app/conf
 mkdir $work_dir/src/log
@@ -14,7 +14,7 @@ mkdir $work_dir/src/tmp
 
 cp $work_dir/conf/produce/* $work_dir/src/app/conf/
 
-version=0.2
+version=0.3
 container=bmgr
 
 docker stop $container

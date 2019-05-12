@@ -20,9 +20,9 @@ class HostTask(object):
         cmd = self.data.get("cmd")
         ip = self.data.get("ip")
         if ip and dest_obj == "remote" and unit:
-            work_log.debug(f'remote: {ip} task: {unit}')
+            work_log.debug(f"remote: {ip} task: {unit}")
             info = HostBaseCmd(ip)
-            work_log.debug(f'remote: {ip} task: {unit}')
+            work_log.debug(f"remote: {ip} task: {unit}")
             new_data = info.run_unit_task(unit)
             return new_data
 
@@ -33,19 +33,19 @@ class HostTask(object):
             if not user:
                 user = default_user
             elif user and user not in conf_data("user_info"):
-                return {'recode': 1, 'redata': 'input user error'}
+                return {"recode": 1, "redata": "input user error"}
 
             try:
                 info = HostBaseCmd(ip, user=user)
                 return info.run_cmd_task(cmd)
             except AttributeError as e:
-                work_log.error('ssh session create error')
+                work_log.error("ssh session create error")
                 work_log.error(str(e))
-                return {'recode': 1, 'redata': 'input format error'}
+                return {"recode": 1, "redata": "input format error"}
             except Exception as e:
-                work_log.error('run_cmd_task error')
+                work_log.error("run_cmd_task error")
                 work_log.error(str(e))
-                return {'recode': 9, 'redata': 'run other error'}
+                return {"recode": 9, "redata": "run other error"}
         else:
-            work_log.info('req format error')
-            return {'recode': 1, 'redata': 'format error'}
+            work_log.info("req format error")
+            return {"recode": 1, "redata": "format error"}

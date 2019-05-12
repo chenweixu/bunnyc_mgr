@@ -8,7 +8,7 @@ import json
 import requests
 import random
 
-app_url = "http://10.2.1.5:9002"
+app_url = "http://127.0.0.1:9002"
 
 host_url = app_url + "/api/v2/cmdb/host"
 

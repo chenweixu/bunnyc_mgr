@@ -7,7 +7,7 @@ __author__ = "chenwx"
 import json
 import requests
 
-app_url = "http://10.2.1.5:9002"
+app_url = "http://127.0.0.1:9002"
 host_url = app_url + "/api/v2/host"
 
 json_headers = {"content-type": "application/json"}
@@ -101,15 +101,15 @@ class HostManagerhostcmd(object):
             print("http status--------->> yes")
 
 
-showhost = ShowSysTemInfo()
-showhost.disk()
-showhost.mem()
-showhost.netlistening()
-showhost.netss()
-showhost.uptime()
-showhost.netrxtx()
-showhost.vmstat()
-showhost.cpu()
+# showhost = ShowSysTemInfo()
+# showhost.disk()
+# showhost.mem()
+# showhost.netlistening()
+# showhost.netss()
+# showhost.uptime()
+# showhost.netrxtx()
+# showhost.vmstat()
+# showhost.cpu()
 
 hostcmd = HostManagerhostcmd()
 hostcmd.uptime()

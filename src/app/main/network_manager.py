@@ -46,7 +46,7 @@ class NetworkManager(object):
                 else:
                     return 4
             except Exception as e:
-                work_log.error('data deal with error')
+                work_log.error("data deal with error")
                 work_log.error(str(e))
                 return 901
         else:
@@ -65,6 +65,7 @@ class NetworkManager(object):
     def port_check(self, ip, port):
         try:
             tn = telnetlib.Telnet(ip, port=port, timeout=3)
+            tn.close()
             work_log.info("port_check yes")
             work_log.info("desc_host: %s ,port: %s" % (ip, str(port)))
             return 0
@@ -89,11 +90,11 @@ class NetworkManager(object):
         work_log.info("networkmanager ping host: " + str(ip))
         recode = self.host_ping_check(ip)
         if recode == 0:
-            redata = '成功'
+            redata = "成功"
         elif recode == 3:
-            redata = '服务器端解析错误'
+            redata = "服务器端解析错误"
         elif recode == 4:
-            redata = '目标不存在'
+            redata = "目标不存在"
         else:
             redata = "失败"
         data = {"recode": recode, "redata": redata}

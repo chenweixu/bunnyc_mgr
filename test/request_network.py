@@ -7,7 +7,7 @@ __author__ = "chenwx"
 import json
 import requests
 
-app_url = "http://10.2.1.5:9002"
+app_url = "http://127.0.0.1:9002"
 network_url = app_url + "/api/v2/network"
 
 json_headers = {"content-type": "application/json"}
@@ -20,9 +20,10 @@ class Network(object):
 
     def pinghost(self, ip):
         print(">> Network test ping host %s" % ip)
-        r = requests.get(network_url, timeout=10, params={"host": ip})
+        r = requests.get(network_url, timeout=10, params={"ip": ip})
         print("http status--------->> %s" % r.status_code)
-        print(r.text)
+        a = r.text
+        print(a)
         return r.status_code
 
     def check_local_port(self, ip, port, source="localhost"):
@@ -44,7 +45,7 @@ class Network(object):
 netcheck = Network()
 netcheck.pinghost('10.2.1.5')
 netcheck.pinghost('10.2.1.67')
-netcheck.pinghost('10.23.12.68')
-netcheck.check_local_port("10.2.1.5", 9002)
-netcheck.check_local_port("10.2.1.5", 9002, source="10.2.1.67")
-netcheck.check_local_port("10.2.1.5", 22, source="10.2.1.67")
+# netcheck.pinghost('10.23.12.68')
+# netcheck.check_local_port("10.2.1.5", 9002)
+# netcheck.check_local_port("10.2.1.5", 9002, source="10.2.1.67")
+# netcheck.check_local_port("10.2.1.5", 22, source="10.2.1.67")

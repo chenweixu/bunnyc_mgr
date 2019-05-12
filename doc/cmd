@@ -1,1 +1,4 @@
 docker run --name bmgr -h bmgr --net="host" -d chenwx/bmgr:0.2
+
+
+gunicorn run:app -c app/conf/gunicorn.conf

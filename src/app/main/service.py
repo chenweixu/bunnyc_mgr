@@ -46,14 +46,16 @@ class Service(object):
                 info = NginxManager()
                 if data.get("server"):
                     server = data.get("server")
-                    work_log.debug("nginx task: %s, server: %s " % (str(task), str(server)))
+                    work_log.debug(
+                        "nginx task: %s, server: %s " % (str(task), str(server))
+                    )
                     data = info.nginx_task(server, task)
                     return data
 
                 elif task in ["lock", "ulock"]:
                     ip = data.get("ip")
                     if ip not in re.compile("\d+.\d+.\d+.\d+").findall(ip):
-                        return { "recode": 2, "redata": "req format error"}
+                        return {"recode": 2, "redata": "req format error"}
                     work_log.info("nginx task: %s :  ip: %s" % (str(task), str(ip)))
                     data = info.lock_ip(ip, task)
                     return data
@@ -65,7 +67,9 @@ class Service(object):
                     ip = data.get("ip")
                     port = data.get("port")
                     zone = data.get("zone")
-                    work_log.info(f"nginx task: {task},zone: {zone} ip: {ip}, port: {port}")
+                    work_log.info(
+                        f"nginx task: {task},zone: {zone} ip: {ip}, port: {port}"
+                    )
                     if task == "shield":
                         data = info.Shield(zone, ip, port)
                     elif task == "cancelShield":
@@ -116,19 +120,19 @@ class Service(object):
             if data.get("group"):
                 group = data.get("group")
                 work_log.debug(group)
-                if group == 'all' and task == 'check':
-                    work_log.debug(f'wg check all service')
+                if group == "all" and task == "check":
+                    work_log.debug(f"wg check all service")
                     info = WeblogicManagerCheck()
                     return info.check_weblogic_group_interface()
-                elif group != 'all' and task == 'check':
-                    work_log.debug(f'wg check group: {group}')
+                elif group != "all" and task == "check":
+                    work_log.debug(f"wg check group: {group}")
                     info = WeblogicManagerCheck()
                     return info.check_weblogic_group_interface(group)
-                elif group and task in ['start', 'stop']:
+                elif group and task in ["start", "stop"]:
                     info = WeblogicManagerGroup(group)
                     return info.run_task_group(task)
                 else:
-                    work_log.debug(f'wg check args error')
+                    work_log.debug(f"wg check args error")
                     return {"recode": 9, "redata": "参数错误"}
             elif data.get("server"):
                 work_log.debug(str(data))
@@ -137,6 +141,6 @@ class Service(object):
                 info = WeblogicManagerSingle(server, port)
                 return info.run_task(task)
             else:
-                work_log.debug(f'wg check args error')
+                work_log.debug(f"wg check args error")
                 return {"recode": 9, "redata": "参数错误"}
 

@@ -15,6 +15,7 @@ class WeblogicManagerSingle(object):
     """docstring for WeblogicManagerSingle
     单机管理
     """
+
     def __init__(self, ip, port=None):
         super(WeblogicManagerSingle, self).__init__()
         self.ip = ip
@@ -36,11 +37,15 @@ class WeblogicManagerSingle(object):
 
     def start_weblogic_single_service(self, port=None):
         # 启动单个服务
-        work_log.debug('start_weblogic_single_service')
+        work_log.debug("start_weblogic_single_service")
         if not port:
-            cmd = ' '.join([self.service_script, 'weblogic', 'start', str(int(self.port) - 17100)])
+            cmd = " ".join(
+                [self.service_script, "weblogic", "start", str(int(self.port) - 17100)]
+            )
         else:
-            cmd = ' '.join([self.service_script, 'weblogic', 'start', str(int(port) - 17100)])
+            cmd = " ".join(
+                [self.service_script, "weblogic", "start", str(int(port) - 17100)]
+            )
         work_log.debug(str(cmd))
         run_data = self._weblogic_ssh_cmd(cmd)
         if run_data[0] == 0:
@@ -48,13 +53,16 @@ class WeblogicManagerSingle(object):
         else:
             return {"recode": run_data[0], "redata": run_data[1]}
 
-
     def stop_weblogic_single_service(self, port=None):
         # 停止单个服务
         if not port:
-            cmd = ' '.join([self.service_script, 'weblogic', 'stop', str(int(self.port) - 17100)])
+            cmd = " ".join(
+                [self.service_script, "weblogic", "stop", str(int(self.port) - 17100)]
+            )
         else:
-            cmd = ' '.join([self.service_script, 'weblogic', 'stop', str(int(port) - 17100)])
+            cmd = " ".join(
+                [self.service_script, "weblogic", "stop", str(int(port) - 17100)]
+            )
         run_data = self._weblogic_ssh_cmd(cmd)
         if run_data[0] == 0:
             return {"recode": 0, "redata": "success"}
@@ -79,7 +87,6 @@ class WeblogicManagerSingle(object):
         else:
             return {"recode": run_data[0], "redata": run_data[1]}
 
-
     def showprojectlog(self):
         # 查看业务日志
         log_out = conf_data("service_info", "weblogic", "log_out")
@@ -92,7 +99,9 @@ class WeblogicManagerSingle(object):
 
     def showgclog(self):
         # 查看GC日志
-        cmd = ' '.join([self.service_script, 'weblogic', 'gclog', str(int(self.port) - 17100)])
+        cmd = " ".join(
+            [self.service_script, "weblogic", "gclog", str(int(self.port) - 17100)]
+        )
         run_data = self._weblogic_ssh_cmd(cmd)
         if run_data[0] == 0:
             return {"recode": run_data[0], "redata": run_data[1]}
@@ -101,7 +110,7 @@ class WeblogicManagerSingle(object):
 
     def start_wg_single(self):
         # 并行 启动单个主机上的6个服务
-        cmd = ' '.join([self.service_script, 'weblogic', 'start_group'])
+        cmd = " ".join([self.service_script, "weblogic", "start_group"])
         run_data = self._weblogic_ssh_cmd(cmd)
         if run_data[0] == 0:
             return {"recode": run_data[0], "redata": run_data[1]}
@@ -110,7 +119,7 @@ class WeblogicManagerSingle(object):
 
     def stop_wg_single(self):
         # 并行 停止单个主机上的6个服务
-        cmd = ' '.join([self.service_script, 'weblogic', 'stop_group'])
+        cmd = " ".join([self.service_script, "weblogic", "stop_group"])
         run_data = self._weblogic_ssh_cmd(cmd)
         if run_data[0] == 0:
             return {"recode": run_data[0], "redata": run_data[1]}
@@ -118,7 +127,9 @@ class WeblogicManagerSingle(object):
             return {"recode": run_data[0], "redata": run_data[1]}
 
     def run_task(self, task):
-        work_log.info('weblogic service task: %s , host: %s port: %s' % (task, self.ip, self.port))
+        work_log.info(
+            "weblogic service task: %s , host: %s port: %s" % (task, self.ip, self.port)
+        )
         if self.port and int(self.port) >= 17101 and int(self.port) <= 17106:
             try:
                 if task == "start":
@@ -141,7 +152,7 @@ class WeblogicManagerSingle(object):
                 return {"recode": 2, "redata": str(e)}
 
         elif not self.port:
-            work_log.info('not port')
+            work_log.info("not port")
             try:
                 if task == "start":
                     return self.start_wg_single()
@@ -150,9 +161,9 @@ class WeblogicManagerSingle(object):
                 elif task == "reboot":
                     return self.reboot_weblogic_single_service
                 elif task == "check":
-                    return {"recode": 4, "redata": '不支持该操作'}
+                    return {"recode": 4, "redata": "不支持该操作"}
                 else:
-                    return {"recode": 4, "redata": '不支持该操作'}
+                    return {"recode": 4, "redata": "不支持该操作"}
             except Exception as e:
                 work_log.error("single weblogic service run error")
                 work_log.error(str(e))
@@ -160,10 +171,12 @@ class WeblogicManagerSingle(object):
         else:
             return {"recode": 1, "redata": "参数错误"}
 
+
 class WeblogicManagerGroup(object):
     """docstring for WeblogicManagerGroup
     主机组管理
     """
+
     def __init__(self, group):
         super(WeblogicManagerGroup, self).__init__()
         self.group = group
@@ -175,21 +188,21 @@ class WeblogicManagerGroup(object):
     def start_single_host(self, ip):
         server = WeblogicManagerSingle(ip)
         data = server.start_wg_single()
-        data['ip'] = ip
-        if data.get('recode') != 0:
-            data['redata'] = 'error'
+        data["ip"] = ip
+        if data.get("recode") != 0:
+            data["redata"] = "error"
         else:
-            data['redata'] = 'success'
+            data["redata"] = "success"
         return data
 
     def stop_single_host(self, ip):
         server = WeblogicManagerSingle(ip)
         data = server.stop_wg_single()
-        data['ip'] = ip
-        if data.get('recode') != 0:
-            data['redata'] = 'error'
+        data["ip"] = ip
+        if data.get("recode") != 0:
+            data["redata"] = "error"
         else:
-            data['redata'] = 'success'
+            data["redata"] = "success"
         return data
 
     def start_wg_group(self):
@@ -219,7 +232,7 @@ class WeblogicManagerGroup(object):
         return data
 
     def checkRunData(self, data):
-        if data.get('recode') == 0:
+        if data.get("recode") == 0:
             return 0
         else:
             return 1
@@ -232,29 +245,33 @@ class WeblogicManagerGroup(object):
             elif task == "stop":
                 data = self.stop_wg_group()
             else:
-                return {'recode': 9, 'redata': "参数错误"}
+                return {"recode": 9, "redata": "参数错误"}
 
-            if any(map(self.checkRunData,data)):
-                return {'recode': 2, 'redata': data}
+            if any(map(self.checkRunData, data)):
+                return {"recode": 2, "redata": data}
             else:
-                return {'recode': 0, 'redata': data}
+                return {"recode": 0, "redata": data}
 
         except Exception as e:
-            work_log.error('run_task_group task error')
+            work_log.error("run_task_group task error")
             work_log.error(str(e))
-            return {'recode': 9, "redata": str(e)}
+            return {"recode": 9, "redata": str(e)}
+
 
 class WeblogicManagerCheck(object):
     """docstring for WeblogicManagerCheck"""
+
     def __init__(self):
         super(WeblogicManagerCheck, self).__init__()
 
     def get_wg_check_task(self, groupname=None):
         if groupname:
             task_list = []
-            for x,y in conf_data("app_group", groupname).items():
+            for x, y in conf_data("app_group", groupname).items():
                 for i in y:
-                    obj = f'http://{x}:{i}'+conf_data("service_info","weblogic","weblogic_interface")
+                    obj = f"http://{x}:{i}" + conf_data(
+                        "service_info", "weblogic", "weblogic_interface"
+                    )
                     task_list.append(obj)
             return task_list
         else:
@@ -263,7 +280,9 @@ class WeblogicManagerCheck(object):
             for group in group_all:
                 for host in group_all.get(group):
                     for port in group_all.get(group).get(host):
-                        url = f'http://{host}:{port}'+conf_data("service_info","weblogic","weblogic_interface")
+                        url = f"http://{host}:{port}" + conf_data(
+                            "service_info", "weblogic", "weblogic_interface"
+                        )
                         task_list.append(url)
             return task_list
 
@@ -273,7 +292,7 @@ class WeblogicManagerCheck(object):
             recode = x.get_url_status_code(url, timeout=2)
             return [url, recode]
         except Exception as e:
-            work_log.error(f'check wg url error: {url}')
+            work_log.error(f"check wg url error: {url}")
             work_log.error(str(e))
             return [url, 1]
 
@@ -296,9 +315,9 @@ class WeblogicManagerCheck(object):
         if groupname:
             UrlList = self.get_wg_check_task(groupname)
             data = self.check_weblogic(UrlList, processes=10)
-            return {'recode': 0, 'redata': data}
+            return {"recode": 0, "redata": data}
         else:
             UrlList = self.get_wg_check_task()
             data = self.check_weblogic(UrlList, processes=80)
-            return {'recode': 0, 'redata': data}
+            return {"recode": 0, "redata": data}
 

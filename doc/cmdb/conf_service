@@ -1,10 +1,22 @@
 # conf_service
-id,         数据库主键
-type,       服务类型
-name,
-ip,
-produce,        是否生产环境
-    yes|no
+id          应用ID
+ntype       协议类型, tcp, udp, http, https, ftp
+stype       应用类型
+sgroup      应用组名
+name        应用名称
+ipv4        业务IP
+ipv6        业务IPv6
+port        端口
+url         业务入口
+user        服务器运行用户
+cmd_run
+cmd_stop
+cmd_reload
+cmd_restart
+
+produce     是否生产环境
+    0       是
+    1       否
 
 level,
     1 业务-核心-关键

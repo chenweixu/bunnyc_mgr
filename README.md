@@ -13,7 +13,10 @@ bunnyc 运维管理平台的简写
 3. 权限访问控制
 4. 通用进程管理[status|start|stop|reboot|reload|flushLogs]
 5. 连通 bunnyc 的redis数据，提供设备信息监控
-1. 接口文档
+6. 接口文档
+7. 文件分发到主机组
+8. 动态主机组
+
 
 # 展望未来
 CMDB

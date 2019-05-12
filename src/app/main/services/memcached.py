@@ -33,12 +33,12 @@ class Memcached_single(object):
             return str(e)
 
     def start(self):
-        cmd = ' '.join([self.service_script, 'memcached','start', str(self.port)])
+        cmd = " ".join([self.service_script, "memcached", "start", str(self.port)])
         work_log.debug("start_mc: %s" % cmd)
         return self._mc_ssh_cmd(cmd)
 
     def stop(self):
-        cmd = ' '.join([self.service_script, 'memcached','stop', str(self.port)])
+        cmd = " ".join([self.service_script, "memcached", "stop", str(self.port)])
         work_log.debug("stop_mc: %s" % cmd)
         return self._mc_ssh_cmd(cmd)
 
@@ -58,7 +58,7 @@ class MemcachedGroup(object):
         for i in self.mc_list:
             host = i.split()[0]
             port = i.split()[1]
-            server = MemcachedDataManager(host, port)
+            server = MemcachedDataSingle(host, port)
             status = server.clear_data()
             data.append((host, port, status))
         return data
@@ -109,10 +109,9 @@ class MemcachedDataSingle(object):
             work_log.info(data)
             return {"recode": 0, "redata": data}
         except Exception as e:
-            work_log.error('get memcached data error')
+            work_log.error("get memcached data error")
             work_log.error(str(e))
             return {"recode": 9, "redata": "error"}
-
 
     def run_task(self, task):
         if task == "stats":
@@ -150,6 +149,7 @@ class MemcachedManagerSingle(object):
             info = MemcachedDataSingle(self.ip, self.port)
             return info.stats()
 
+
 # class MemcachedManagerGroup(object):
 #     """docstring for MemcachedManagerGroup"""
 
@@ -166,17 +166,15 @@ class MemcachedManagerSingle(object):
 #             pass
 
 
+# def get_connections_sum(self):
+#     return {"recode": 0, "redata": self.mc.get_connections_sum()}
 
+# def get_mc_base_info(self):
+#     curr_connections = self.mc.get_connections_sum()
+#     mem_user_rate = self.mc.get_mem_rate()
+#     if curr_connections != 0:
+#         check_ok = 0
+#     else:
+#         check_ok = 1
+#     return { "recode": check_ok, "redata": (curr_connections, mem_user_rate)}
 
-
-    # def get_connections_sum(self):
-    #     return {"recode": 0, "redata": self.mc.get_connections_sum()}
-
-    # def get_mc_base_info(self):
-    #     curr_connections = self.mc.get_connections_sum()
-    #     mem_user_rate = self.mc.get_mem_rate()
-    #     if curr_connections != 0:
-    #         check_ok = 0
-    #     else:
-    #         check_ok = 1
-    #     return { "recode": check_ok, "redata": (curr_connections, mem_user_rate)}

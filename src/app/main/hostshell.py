@@ -21,14 +21,14 @@ class HostBaseCmd(Myssh):
             key = conf_data("user_info", str(ssh_user), "ssh_key")
             ssh_port = conf_data("user_info", "ssh_port")
         except Exception as e:
-            work_log.info('ssh arg input error')
+            work_log.info("ssh arg input error")
             work_log.info(str(e))
             raise e
 
         self.ip = ip
 
         if key:
-            ssh_key = conf_data("work_conf_dir") +'/'+ key
+            ssh_key = conf_data("work_conf_dir") + "/" + key
 
         if ssh_key and not scp:
             Myssh.__init__(self, ip, ssh_user, keys=ssh_key, port=ssh_port)
@@ -64,7 +64,7 @@ class HostBaseCmd(Myssh):
             else:
                 work_log.debug("ssh_cmd success, run_stdout")
                 work_log.debug(str(run_stdout))
-                return [0, 'success']
+                return [0, "success"]
         except Exception as e:
             work_log.error("ssh_cmd Exception error")
             work_log.error(str(e))
@@ -94,22 +94,20 @@ class HostBaseCmd(Myssh):
         cmd = unit_dict.get(task)
         try:
             recode, data = self.ssh_cmd(cmd, stdout=True)
-            return { "recode": recode, "redata": data}
+            return {"recode": recode, "redata": data}
         except Exception as e:
-            work_log.error('run_unit_task error')
+            work_log.error("run_unit_task error")
             work_log.error(str(e))
-            return { "recode": 9, "redata": str(e)}
-
+            return {"recode": 9, "redata": str(e)}
 
     def run_cmd_task(self, cmd):
         try:
             recode, data = self.ssh_cmd(cmd, stdout=True)
             return {"recode": recode, "redata": data}
         except Exception as e:
-            work_log.error('run_cmd_task error')
+            work_log.error("run_cmd_task error")
             work_log.error(str(e))
-            return jsonify({"recode": 9, "redata": str(e)})
-
+            return {"recode": 9, "redata": str(e)}
 
     def net_port_scan(self, ip, port):
         try:

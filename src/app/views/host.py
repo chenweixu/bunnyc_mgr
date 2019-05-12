@@ -22,8 +22,8 @@ def v2_host():
     elif request.method == "POST":
         try:
             key = request.json.get("key")
-            if verify_key(key) and request.json.get("obj") == 'host':
-                info = HostTask(request.json.get('content'))
+            if verify_key(key) and request.json.get("obj") == "host":
+                info = HostTask(request.json.get("content"))
                 data = info.run()
                 return jsonify(data)
             else:
@@ -32,6 +32,6 @@ def v2_host():
         except Exception as e:
             work_log.error("host run error")
             work_log.error(str(e))
-            return jsonify({ "recode": 9, "redata": str(e)})
+            return jsonify({"recode": 9, "redata": str(e)})
     else:
         return "", 404

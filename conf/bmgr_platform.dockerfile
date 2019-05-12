@@ -4,6 +4,7 @@
 
 # docker build -t chenwx/bmgr_platform:0.1 -f conf/bmgr_platform.dockerfile .
 # docker build -t chenwx/bmgr_platform:0.3 -f conf/bmgr_platform.dockerfile .
+# docker build -t chenwx/bmgr_platform:0.4 -f conf/bmgr_platform.dockerfile .
 
 FROM chenwx/python:3
 MAINTAINER chenwx "chenwx716@163.com"
