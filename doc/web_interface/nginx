@@ -1,0 +1,37 @@
+# 方式: post
+
+// 锁定
+{
+    "obj": "dmz_nginx"
+    "task": "lock",
+    "ip": ["10.2.1.1", "10.2.1.2"]
+}
+
+// 解锁
+{
+    "obj": "dmz_nginx"
+    "task": "unlock",
+    "ip": ["10.2.1.1", "10.2.1.2"]
+}
+
+// 解锁全部
+{
+    "obj": "dmz_nginx"
+    "task": "clearlock",
+}
+
+// 查看锁定的IP
+{
+    "obj": "dmz_nginx"
+    "task": "showlock",
+}
+
+
+# 查看锁定的ip
+{
+    "ip": ["10.2.1.1", "10.2.1.2"]
+}
+
+{
+    "ip": False
+}

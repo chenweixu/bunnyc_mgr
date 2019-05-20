@@ -52,18 +52,29 @@ class Service(object):
                     data = info.nginx_task(server, task)
                     return data
 
-                elif task in ["lock", "ulock"]:
+                elif task in ["lock", "unlock"]:
                     ip = data.get("ip")
-                    if ip not in re.compile("\d+.\d+.\d+.\d+").findall(ip):
-                        return {"recode": 2, "redata": "req format error"}
+                    # if ip not in re.compile("\d+.\d+.\d+.\d+").findall(ip):
+                    #     return {"recode": 2, "redata": "req format error"}
+                    # 暂时停止IP地址校验，因为还没有考虑ipv6
                     work_log.info("nginx task: %s :  ip: %s" % (str(task), str(ip)))
                     data = info.lock_ip(ip, task)
                     return data
                 elif task == "showlock":
+                    # 查看锁定的公网IP
                     work_log.info("nginx task: showlock")
-                    data = info.showlock()
+                    data = info.lock_ip('xxx', task)
+                    # data = info.showlock()
                     return data
+                elif task == "clearlock":
+                    # 查看锁定的公网IP
+                    work_log.info("nginx task: clearlock")
+                    data = info.lock_ip('xxx', task)
+                    # data = info.showlock()
+                    return data
+
                 elif task in ["shield", "cancelShield"]:
+                    # 屏蔽/解除屏蔽-后台应用服务
                     ip = data.get("ip")
                     port = data.get("port")
                     zone = data.get("zone")
