@@ -35,3 +35,12 @@
 {
     "ip": False
 }
+
+
+
+srem set:nginxlockip 223.72.86.226
+    # 新增
+sismember set:nginxlockip 223.72.86.226
+    # 判断元素是否存在
+smembers set:nginxlockip
+    # 获取列表

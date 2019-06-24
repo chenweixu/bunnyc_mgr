@@ -16,6 +16,11 @@ curl -i http://127.0.0.1:9002/api/v1/network?host=127.0.0.1
 
 curl -i http://127.0.0.1:9002/api/v1/checkweburl?url=http://baidu.com
 
+# nginx
+curl -H 'content-type: application/json' \
+    -d '{"obj": "dmz_nginx","task": "lock","ip": ["124.65.156.126"]}' \
+    -X POST http://127.0.0.1:9002/api/v3/nginx
+
 
 # weblogic
 curl -i http://127.0.0.1:9002/api/v1/weblogic
