@@ -8,7 +8,7 @@ import json
 import requests
 
 app_url = "http://127.0.0.1:9002"
-service_url = app_url + "/api/v2/service"
+req_url = app_url + "/api/v2/service"
 
 json_headers = {"content-type": "application/json"}
 
@@ -33,7 +33,7 @@ class MemCachedManager(object):
                 }
         }
 
-        r = requests.post(service_url, data=json.dumps(mess), headers=json_headers)
+        r = requests.post(req_url, data=json.dumps(mess), headers=json_headers)
         print(">> MemCachedManager %s" % task)
         print("http status--------->> %s" % r.status_code)
         print(r.text)
@@ -54,7 +54,7 @@ class MemCachedManager(object):
                 }
         }
 
-        r = requests.post(service_url, data=json.dumps(mess), headers=json_headers)
+        r = requests.post(req_url, data=json.dumps(mess), headers=json_headers)
         print(">> MemCachedManager %s" % "set")
         print("http status--------->> %s" % r.status_code)
         print(r.text)
@@ -73,7 +73,7 @@ class MemCachedManager(object):
                 }
         }
 
-        r = requests.post(service_url, data=json.dumps(mess), headers=json_headers)
+        r = requests.post(req_url, data=json.dumps(mess), headers=json_headers)
         print(">> MemCachedManager %s" % "get")
         print("http status--------->> %s" % r.status_code)
         print(r.text)

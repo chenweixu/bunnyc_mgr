@@ -9,7 +9,7 @@ import requests
 
 app_url = "http://127.0.0.1:9002"
 
-service_url = app_url + "/api/v2/service"
+req_url = app_url + "/api/v2/service"
 
 json_headers = {"content-type": "application/json"}
 
@@ -33,7 +33,7 @@ class WeblogicOne(object):
                 "port": self.port,
             },
         }
-        r = requests.post(service_url, data=json.dumps(mess), headers=json_headers)
+        r = requests.post(req_url, data=json.dumps(mess), headers=json_headers)
         print("http status------task: %s --->> %s" % (task, r.status_code))
         print(r.text)
 
@@ -51,7 +51,7 @@ class WeblogicHost(object):
             "obj": "service",
             "content": {"task": task, "unit": "weblogic", "server": self.ip},
         }
-        r = requests.post(service_url, data=json.dumps(mess), headers=json_headers)
+        r = requests.post(req_url, data=json.dumps(mess), headers=json_headers)
         print("http status------task: %s --->> %s" % (task, r.status_code))
         print(r.text)
 
@@ -69,7 +69,7 @@ class WenlogicGroup(object):
             "obj": "service",
             "content": {"task": task, "unit": "weblogic", "group": self.group},
         }
-        r = requests.post(service_url, data=json.dumps(mess), headers=json_headers)
+        r = requests.post(req_url, data=json.dumps(mess), headers=json_headers)
         print("http status------task: %s --->> %s" % (task, r.status_code))
         print(r.text)
 

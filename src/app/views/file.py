@@ -3,18 +3,11 @@ import os
 from app import app
 from flask import request
 from flask import jsonify
-
-from app.utils.mylog import My_log
 from app.main.conf import conf_data
 from app.utils.myencrypt import create_key, verify_key
 from app.main.file_upload_down import UpDownFile
 from flask import send_file, send_from_directory
-
-
-logfile = conf_data("work_log")
-log_evel = conf_data("log_evel")
-work_log = My_log(logfile, log_evel).get_log()
-
+from app import work_log
 
 @app.route("/api/v2/downfile/<file_name>", methods=["GET"])
 def v2_downfile(file_name):

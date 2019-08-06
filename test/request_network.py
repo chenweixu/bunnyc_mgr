@@ -8,7 +8,7 @@ import json
 import requests
 
 app_url = "http://127.0.0.1:9002"
-network_url = app_url + "/api/v2/network"
+req_url = app_url + "/api/v2/network"
 
 json_headers = {"content-type": "application/json"}
 
@@ -20,7 +20,7 @@ class Network(object):
 
     def pinghost(self, ip):
         print(">> Network test ping host %s" % ip)
-        r = requests.get(network_url, timeout=10, params={"ip": ip})
+        r = requests.get(req_url, timeout=10, params={"ip": ip})
         print("http status--------->> %s" % r.status_code)
         a = r.text
         print(a)
@@ -36,7 +36,7 @@ class Network(object):
         print(
             ">> Network check sip-> %s , ip-> %s ,port-> %s" % (source, ip, str(port))
         )
-        r = requests.post(network_url, data=json.dumps(mess), headers=json_headers)
+        r = requests.post(req_url, data=json.dumps(mess), headers=json_headers)
         print("http status--------->> %s" % r.status_code)
         print(r.text)
         return r.status_code

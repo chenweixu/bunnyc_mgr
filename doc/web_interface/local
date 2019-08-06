@@ -1,0 +1,19 @@
+methods: post
+
+'obj': 'local',
+'content': {}
+
+======================================================
+1. 本地命令执行
+task: cmd
+cmd:
+
+2. 本地命令执行-单项任务
+task: 'unit'
+unit: [cpu, mem, disk, netlistening, netss, uptime, netrxtx, vmstat]
+
+3. 本地脚本 srcipt
+task: 'srcipt'
+file:
+
+======================================================

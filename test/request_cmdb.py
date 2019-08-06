@@ -10,7 +10,7 @@ import random
 
 app_url = "http://127.0.0.1:9002"
 
-host_url = app_url + "/api/v2/cmdb/host"
+req_url = app_url + "/api/v2/cmdb/host"
 
 json_headers = {"content-type": "application/json"}
 
@@ -31,7 +31,7 @@ class CmdbHost(object):
                 }
         }
 
-        r = requests.post(host_url,data=json.dumps(mess),
+        r = requests.post(req_url,data=json.dumps(mess),
                 headers=json_headers, timeout=5)
         print("http status--------->> %s" % r.status_code)
         print(r.text)
@@ -48,7 +48,7 @@ class CmdbHost(object):
                 }
         }
 
-        r = requests.post(host_url,data=json.dumps(mess),
+        r = requests.post(req_url,data=json.dumps(mess),
                 headers=json_headers, timeout=5)
         print("http status--------->> %s" % r.status_code)
         print(r.text)
@@ -64,7 +64,7 @@ class CmdbHost(object):
                 }
         }
 
-        r = requests.post(host_url,data=json.dumps(mess),
+        r = requests.post(req_url,data=json.dumps(mess),
                 headers=json_headers, timeout=5)
         print("http status--------->> %s" % r.status_code)
         print(r.text)
@@ -80,7 +80,7 @@ class CmdbHost(object):
                 }
         }
 
-        r = requests.post(host_url,data=json.dumps(mess),
+        r = requests.post(req_url,data=json.dumps(mess),
                 headers=json_headers, timeout=5)
         print("http status--------->> %s" % r.status_code)
         print(r.text)
@@ -95,7 +95,7 @@ class CmdbHost(object):
                 }
         }
 
-        r = requests.post(host_url,data=json.dumps(mess),
+        r = requests.post(req_url,data=json.dumps(mess),
                 headers=json_headers, timeout=5)
         print("http status--------->> %s" % r.status_code)
         print(r.text)

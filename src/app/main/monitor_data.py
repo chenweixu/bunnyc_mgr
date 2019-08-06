@@ -1,15 +1,8 @@
 import time
-from app.utils.mylog import My_log
-from app.main.conf import conf_data
-
-from app import db
-from app.main.dbmodel.logdb import t_host_cpu
 from sqlalchemy import func
-
-logfile = conf_data("work_log")
-log_evel = conf_data("log_level")
-work_log = My_log(logfile, log_evel).get_log()
-
+from app import db
+from app import work_log
+from app.main.dbmodel.logdb import t_host_cpu
 
 class MonitorTask(object):
     """docstring for MonitorTask"""
@@ -85,4 +78,3 @@ class MonitorTask(object):
             return self.HostCpuData(data)
         else:
             return {"recode": 1, "redata": "format error"}
-

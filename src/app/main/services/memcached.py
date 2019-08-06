@@ -1,13 +1,9 @@
 import time
-from app.utils.mylog import My_log
 from app.utils.memcached import Memcached
 from app.main.conf import conf_data
 from app.main.hostshell import HostBaseCmd
 from app.main.hostshell import HostGroupCmd
-
-logfile = conf_data("work_log")
-log_evel = conf_data("log_level")
-work_log = My_log(logfile, log_evel).get_log()
+from app import work_log
 
 
 class Memcached_single(object):

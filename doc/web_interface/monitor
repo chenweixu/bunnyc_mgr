@@ -3,6 +3,10 @@ methods: post
 'obj': 'monitor',
 'content': {}
 
+为查看 bunnyc db 中的数据
+为调用 host 和 hosts 接口进行远程查询
+为远程探测
+
 # 功能
 支持单主机全量最新信息
 支持单主机指定类型最新信息

@@ -1,0 +1,23 @@
+1. 上传-服务器
+task: 'file_upload'
+file:
+
+2. 下载-服务器
+task: 'file_down'
+file:
+
+3. 上传-指定服务器
+task: 'file_upload'
+file:
+
+4. 下载-指定服务器
+task: 'file_down'
+file:
+
+5. 上传-多个服务器
+task: 'file_upload'
+file:
+
+6. 下载-多个服务器
+task: 'file_down'
+file:

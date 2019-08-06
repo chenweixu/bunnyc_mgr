@@ -8,7 +8,7 @@ import json
 import requests
 
 app_url = "http://127.0.0.1:9002"
-host_url = app_url + "/api/v2/monitor"
+req_url = app_url + "/api/v2/monitor"
 
 json_headers = {"content-type": "application/json"}
 
@@ -26,7 +26,7 @@ class MonitorData(object):
             "content": {"unit": unit, "ip": "10.2.1.2", "type": 'host'},
         }
 
-        r = requests.post(host_url, data=json.dumps(mess), headers=json_headers)
+        r = requests.post(req_url, data=json.dumps(mess), headers=json_headers)
         print("http status--------->> %s" % r.status_code)
         print(r.text)
 

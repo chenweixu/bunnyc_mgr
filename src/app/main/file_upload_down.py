@@ -2,11 +2,7 @@ import os
 from app.utils.mylog import My_log
 from app.main.hostshell import HostBaseCmd
 from app.main.conf import conf_data
-
-logfile = conf_data("work_log")
-log_evel = conf_data("log_level")
-work_log = My_log(logfile, log_evel).get_log()
-
+from app import work_log
 
 class UpDownFile(HostBaseCmd):
     """docstring for UpDownFile"""
