@@ -4,7 +4,9 @@ from multiprocessing import Pool
 from app import work_log
 
 class HostBaseCmd(Myssh):
-    """docstring for HostBaseCmd"""
+    """docstring for HostBaseCmd
+    单主机远程任务
+    """
 
     def __init__(self, ip, user=None, scp=None):
         if not user:
@@ -75,18 +77,13 @@ class HostBaseCmd(Myssh):
             work_log.error(str(e))
             return False
 
-    def run_unit_task(self, task):
-        unit_dict = {
-            "disk": "df -h",
-            "ram": "free -g",
-            "netlistening": "/usr/sbin/ss -tnl",
-            "netss": "/usr/sbin/ss -s",
-            "uptime": "uptime",
-            "netrxtx": "sar -n DEV 1 3",
-            "vmstat": "vmstat 1 8 -t -S M",
-            "cpu": "sar -u 1 3",
-        }
-        cmd = unit_dict.get(task)
+    def run_unit_task(self, arg):
+
+        if arg in conf_data('shell_unit'):
+            cmd = conf_data('shell_unit', arg)
+        else:
+            return {"recode": 9, "redata": 'unit error'}
+
         try:
             recode, data = self.ssh_cmd(cmd, stdout=True)
             return {"recode": recode, "redata": data}
@@ -138,29 +135,3 @@ class HostBaseCmd(Myssh):
         return recode
         work_log.debug("port scan recode: %s" % recode)
 
-
-class HostGroupCmd(object):
-    """docstring for HostGroupCmd"""
-
-    def __init__(self, user, hostlist):
-        super(HostGroupCmd, self).__init__()
-        self.user = user
-        self.hostlist = hostlist
-
-    def _ssh_cmd(self, host, cmd):
-        ssh = HostBaseCmd(host, self.user)
-        stdout = ssh.ssh_cmd(cmd)
-        return stdout
-
-    def run(self, cmd, processes=8):
-        pool = Pool(processes=processes)
-        info = []
-        for host in self.hostlist:
-            info.append(pool.apply_async(self._ssh_cmd, (host, cmd)))
-        pool.close()
-        pool.join()
-
-        data = []
-        for i in info:
-            data.append(i.get())
-        return data

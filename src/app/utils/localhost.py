@@ -1,7 +1,6 @@
 import os
 import re
 import subprocess
-from app import work_log
 
 
 class local_task_exec(object):
@@ -11,7 +10,6 @@ class local_task_exec(object):
         super(local_task_exec, self).__init__()
 
     def cmd(self, cmd_body):
-        work_log.info(str(cmd_body))
         sub = subprocess.run(cmd_body, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         returncode,out,err=sub.returncode,sub.stdout,sub.stderr
         if returncode:
@@ -20,17 +18,11 @@ class local_task_exec(object):
             return out.decode().splitlines()
 
     def unit(self, name):
-        if name == "disk":
-            return self.cmd('df')
-        if name == "diskinfo":
+        if name == "disk_dict":
             return self._get_disk_info()
-        elif name == "uptime":
-            return self.cmd('uptime')
         elif name == "uptime_dict":
             return self._uptime_dict()
-        elif name == "cpu":
-            return self.cmd('sar 1 3')
-        elif name == "meminfo":
+        elif name == "mem_dict":
             return self._hw_mem_proc()
         else:
             return "name error"
@@ -77,25 +69,4 @@ class local_task_exec(object):
             }
             data[p_info[5]] = p_data
         return data
-
-
-# class Get_Host_data(object):
-#     """docstring for Get_Host_data"""
-
-#     def __init__(self, ip, type):
-#         super(Get_Host_data, self).__init__()
-#         self.ip = ip
-#         self.type = type
-
-#     def get_meminfo(self):
-#         # 将 meminfo 文件内容转为一个字典
-#         data = open("/proc/meminfo", "r").readlines()
-#         meminfo = {}
-#         for i in data:
-#             key = re.findall(r".*:", i)[0].strip(":")
-#             val = int(re.findall(r"\b[0-9]+", i)[0])
-#             meminfo[key] = val
-#         meminfo["host_ip"] = self.ip
-#         meminfo["type"] = self.type
-#         return meminfo
 

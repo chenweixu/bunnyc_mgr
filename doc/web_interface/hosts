@@ -11,24 +11,24 @@ ip:
 user:
 
 2. 命令执行-单项任务
-task: 'shell_unit'
+task: 'unit'
 arg: [cpu, mem, disk, netlistening, netss, uptime, netrxtx, vmstat]
 ip:
 user:
 
 3. 脚本
-task: srcipt
-file:
+task: script
+arg:
 ip:
 user:
-
-4. 文件上传
-task: 'file_upload'
-file:
-
-5. 文件下载
-task: 'file_down'
-file:
-new_file:
-    按IP地址分目录，并打包
 ======================================================
+
+ip
+    ["1.1.1.1"]
+    ["1.1.1.1",'1.1.1.2']
+    ["1.1.1.1-1.1.1.3"]
+
+group
+    dmz1
+    dmz2
+    nginx

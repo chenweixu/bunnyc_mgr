@@ -13,104 +13,64 @@ req_url = app_url + "/api/v2/host"
 json_headers = {"content-type": "application/json"}
 
 
-class ShowSysTemInfo(object):
-    """docstring for ShowSysTemInfo"""
+class HostTask(object):
+    """docstring for HostTask"""
+    def __init__(self, ip):
+        super(HostTask, self).__init__()
+        self.ip = ip
 
-    def __init__(self):
-        super(ShowSysTemInfo, self).__init__()
-
-    def post(self, unit):
+    def post(self, content):
         mess = {
             "key": "c1c2",
             "obj": "host",
-            "content": {"task": "remote", "ip": "10.2.1.67", "unit": unit},
+            "content": content
         }
         r = requests.post(req_url, data=json.dumps(mess), headers=json_headers)
         print("http status--------->> %s" % r.status_code)
         print(r.text)
 
-    def disk(self):
-        print(">>ShowSysTemInfo system info: disk")
-        self.post("disk")
-
-    def mem(self):
-        print(">>ShowSysTemInfo system info: mem")
-        self.post("mem")
-
-    def netlistening(self):
-        print(">>ShowSysTemInfo system info: netlist")
-        self.post("netlistening")
-
-    def netss(self):
-        print(">>ShowSysTemInfo system info: netss")
-        self.post("netss")
-
-    def uptime(self):
-        print(">>ShowSysTemInfo system info: uptime")
-        self.post("uptime")
-
-    def netrxtx(self):
-        print(">>ShowSysTemInfo system info: netrxtx")
-        self.post("netrxtx")
-
-    def vmstat(self):
-        print(">>ShowSysTemInfo system info: vmstart")
-        self.post("vmstat")
-
-    def cpu(self):
-        print(">>ShowSysTemInfo system info: cpu")
-        self.post("cpu")
-
-
-class HostManagerhostcmd(object):
-    """docstring for HostManagerhostcmd"""
-
-    def __init__(self):
-        super(HostManagerhostcmd, self).__init__()
-
-    def post(self, mess):
-        r = requests.post(req_url, data=json.dumps(mess), headers=json_headers)
-        print("http status--------->> %s" % r.status_code)
-        print(r.text)
-        return r.status_code
-
-    def uptime(self):
-        print(">> HostManagerhostcmd wait user network cmd: uptime")
-        mess = {
-            "key": "c1c2",
-            "obj": "host",
-            "content": {"task": "remote", "ip": "10.2.1.67", "cmd": "uptime"},
+    def cmd(self, body):
+        print(f">>HostTask cmd: {body}")
+        content = {
+            "task": "shell",
+            "ip": self.ip,
+            "user": "ngca",
+            "arg": body
         }
-        self.post(mess)
+        self.post(content)
 
-    def nowait(self):
-        print(">> HostManagerhostcmd no wait user network cmd: uptime")
-        mess = {
-            "key": "c1c2",
-            "obj": "host",
-            "content": {
-                "task": "remote",
-                "ip": "10.2.1.67",
-                "cmd": "uptime",
-                "user": "weblogic",
-            },
+    def unit(self, body):
+        print(f">>HostTask unit: {body}")
+        content = {
+            "task": "unit",
+            "ip": self.ip,
+            "user": "ngca",
+            "arg": body
         }
+        self.post(content)
 
-        recode = self.post(mess)
-        if recode == 403:
-            print("http status--------->> yes")
+    def script(self, body):
+        print(f">>HostTask script: {body}")
+        content = {
+            "task": "script",
+            "ip": self.ip,
+            "user": "ngca",
+            "arg": body
+        }
+        self.post(content)
 
+h1 = HostTask('10.2.1.67')
+# h1.cmd('uptime')
+# h1.cmd('hostname')
 
-# showhost = ShowSysTemInfo()
-# showhost.disk()
-# showhost.mem()
-# showhost.netlistening()
-# showhost.netss()
-# showhost.uptime()
-# showhost.netrxtx()
-# showhost.vmstat()
-# showhost.cpu()
+# h1.unit('uptime')
+# h1.unit('disk')
+# h1.unit('mem')
+# h1.unit('netss')
+# h1.unit('netrxtx')
+# h1.unit('netlistening')
+# h1.unit('cpu')
+# h1.unit('vmstat')
 
-hostcmd = HostManagerhostcmd()
-hostcmd.uptime()
-hostcmd.nowait()
+h1.script('~/f1.sh')
+

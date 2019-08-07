@@ -21,3 +21,4 @@ file:
 6. 下载-多个服务器
 task: 'file_down'
 file:
+new_name:

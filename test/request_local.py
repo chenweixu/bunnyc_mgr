@@ -16,39 +16,39 @@ class ShowLocal(object):
     """docstring for ShowLocal"""
     def __init__(self):
         super(ShowLocal, self).__init__()
-        self.mess = {
-            "key": "c1c2",
-            "obj": "local"
-        }
 
     def post(self, content):
-        self.mess["content"] = content
-        print(self.mess)
-        r = requests.post(req_url, data=json.dumps(self.mess), headers=json_headers)
+        mess = {
+            "key": "c1c2",
+            "obj": "local",
+            "content": content
+        }
+
+        r = requests.post(req_url, data=json.dumps(mess), headers=json_headers)
         print("http status--------->> %s" % r.status_code)
         print(r.text)
 
 
     def cmd(self, body):
-        body = {
+        content = {
             "task": "cmd",
-            "cmd": body
+            "arg": body
         }
-        self.post(body)
+        self.post(content)
 
     def unit(self, body):
-        body = {
+        content = {
             "task": "unit",
-            "unit": body
+            "arg": body
         }
-        self.post(body)
+        self.post(content)
 
     def srcipt(self, file):
-        body = {
+        content = {
             "task": "script",
-            "file": file
+            "arg": file
         }
-        self.post(body)
+        self.post(content)
 
 
 task = ShowLocal()
@@ -57,10 +57,10 @@ task.cmd('uptime')
 task.cmd('df -h')
 
 task.unit('disk')
-task.unit('diskinfo')
+task.unit('disk_dict')
 task.unit('uptime')
 task.unit('uptime_dict')
 task.unit('cpu')
-task.unit('meminfo')
+task.unit('mem_dict')
 
 task.srcipt('/home/wait/code/f1.sh')
