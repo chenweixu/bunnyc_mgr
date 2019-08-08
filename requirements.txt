@@ -1,13 +1,13 @@
-Flask==1.0.2
+Flask==1.1.1
 Jinja2==2.10
 # Markdown==2.6.11
 pymemcache==2.1.0
-PyYAML==5.1
-requests==2.21.0
-# paramiko==2.4.1
+PyYAML==5.1.2
+requests==2.22.0
+paramiko==2.6.0
 suds-jurko==0.6
 # Flask-Cors==3.0.6
-redis==3.2.0
+redis==3.3.6
 PyMySQL==0.9.3
-Flask-SQLAlchemy==2.3.2
+Flask-SQLAlchemy==2.4.0
 gunicorn==19.9.0

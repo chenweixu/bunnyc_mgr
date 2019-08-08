@@ -23,7 +23,7 @@ class MonitorData(object):
         mess = {
             "key": "c1c2",
             "obj": "monitor",
-            "content": {"unit": unit, "ip": "10.2.1.2", "type": 'host'},
+            "content": {"unit": unit, "ip": "10.2.1.2", "types": 'host'},
         }
 
         r = requests.post(req_url, data=json.dumps(mess), headers=json_headers)

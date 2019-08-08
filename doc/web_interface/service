@@ -1,55 +1,78 @@
-methods: get
-
-1. url探测
-/api/v2/service&task=checkurl&url=http://xxx.url
-
-==============================================================================
 
 methods: post
 
 'obj': 'service',
 'content': {}
 
-# nginx
-1. nginx IP 锁定/解锁
-unit: nginx
-ip:
-task: "lock", "ulock", "showlock"
+==============================================================================
 
-2. showlock
+1. nginx single
 unit: nginx
-task: "showlock"
-
-3. nginx 开关
-unit: nginx
-server:
+types: single
 task: [start, stop, reload, show_access_log, show_error_log,
     clear_access_log, clear_error_log
     ]
 
+2. nginx lock
+unit: nginx
+types: lock
+task: "lock", "ulock", "showlock" "clearlock"
+ip:
+
+3. nginx 屏蔽后台服务
+unit: nginx
+types: shield
+task: "shield", "cancel"
+ip:
+port: 无端口则是针对主机
+
+==============================================================================
 # memcached
+
 1. memcached single
 unit: memcached
+types: single
 server:
 port:
-task: ["start", "stop", "reboot"]
+task: ["start", "stop"]
 
-2. memcached data
+2. memcached group
 unit: memcached
+types: group
+group:
+task: ["start", "stop"]
+
+3. memcached single data
+unit: memcached
+types: data
 server:
 port:
-task: [get, set, link_sum, cleardata]
+task: [get, set, link_sum, cleardata, "stats", "info"]
     get: key
     set: key / value
 
+4. memcached group data
+unit: memcached
+types: data_group
+group:
+task: [get, set, link_sum, cleardata, "stats", "info"]
+    get: key
+    set: key / value
+
+==============================================================================
 # weblogic
+
 1. single
 unit: weblogic
-task: ["start", "stop", "reboot", "accesslog", "projectlog", "check"]
+types: single
+task: ["start", "stop", "check", "accesslog", "projectlog"]
 server:
-port:  无值表示所有接口
+port:  无值表示所有接口"check"
 
 2. group
 unit: weblogic
-task: ["start", "stop", "reboot", "check"]
+types: group
+task: ["start", "stop", "check"]
 group:
+
+==============================================================================

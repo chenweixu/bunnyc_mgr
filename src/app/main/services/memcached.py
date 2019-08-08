@@ -1,16 +1,16 @@
 import time
 from app.utils.memcached import Memcached
 from app.main.conf import conf_data
-from app.main.hostshell import HostBaseCmd
-from app.main.hostshell import HostGroupCmd
+from app.main.server.hostbase import HostBaseCmd
+from app.main.server.hostgroup import HostGroupCmd
 from app import work_log
+from multiprocessing import Pool
 
-
-class Memcached_single(object):
-    """docstring for Memcached_single"""
+class MemcachedManagerSingle(object):
+    """docstring for MemcachedManagerSingle"""
 
     def __init__(self, ip, port):
-        super(Memcached_single, self).__init__()
+        super(MemcachedManagerSingle, self).__init__()
         self.ip = ip
         self.port = port
         self.user = conf_data("user_info", "default_user")
@@ -38,46 +38,72 @@ class Memcached_single(object):
         work_log.debug("stop_mc: %s" % cmd)
         return self._mc_ssh_cmd(cmd)
 
-    def run(self):
-        pass
+    def run_task(self, task):
+        if task == "start":
+            recode = self.start()
+            if recode == 0:
+                return {"recode": recode, "redata": "success"}
+            else:
+                return {"recode": 9, "redata": "exec error"}
+        elif task == "stop":
+            recode = self.stop()
+            if recode == 0:
+                return {"recode": recode, "redata": "success"}
+            else:
+                return {"recode": 9, "redata": "exec error"}
 
 
-class MemcachedGroup(object):
-    """docstring for MemcachedGroup"""
 
-    def __init__(self, mc_list):
-        super(MemcachedGroup, self).__init__()
+class MemcachedManagerGroup(object):
+    """docstring for MemcachedManagerGroup"""
+
+    def __init__(self, group=None, mc_list=None):
+        super(MemcachedManagerGroup, self).__init__()
+        self.group = group
         self.mc_list = mc_list
 
-    def clear_mc_group(self):
-        data = []
-        for i in self.mc_list:
-            host = i.split()[0]
-            port = i.split()[1]
-            server = MemcachedDataSingle(host, port)
-            status = server.clear_data()
-            data.append((host, port, status))
+    def get_group_data(self):
+        unit_list = []
+        if self.group:
+            info = conf_data("mc_group", self.group)
+            for i in info:
+                ip = i.split()[0]
+                port = i.split()[1]
+                unit_list.append([ip, port])
+            return unit_list
+        if self.mc_list:
+            for i in self.mc_list:
+                host = i.split()[0]
+                port = i.split()[1]
+                unit_list.append([ip, port])
+            return unit_list
+
+    def single_task(self, server, task):
+        s1 = MemcachedManagerSingle(server[0], server[1])
+        data = s1.run_task(task)
+        data["ip"] = server[0]
+        # if data.get("recode") != 0:
+        #     data["redata"] = "error"
+        # else:
+        #     data["redata"] = "success"
         return data
 
-    def start_mc_group(self):
+    def group_task(self, task):
+        info = []
+        pool = Pool(processes=10)
+        for server in self.get_group_data():
+            info.append(pool.apply_async(self.single_task, (server, task)))
+        pool.close()
+        pool.join()
+
         data = []
-        for i in self.mc_list:
-            host = i.split()[0]
-            port = i.split()[1]
-            server = Memcached_single(host, port)
-            status = server.start()
-            data.append((host, port, status))
+        for i in info:
+            data.append(i.get())
         return data
 
-    def stop_mc_group(self):
-        data = []
-        for i in self.mc_list:
-            host = i.split()[0]
-            port = i.split()[1]
-            server = Memcached_single(host, port)
-            status = server.stop()
-            data.append((host, port, status))
-        return data
+    def run_task(self, task):
+        if task == "start" or task == "stop":
+            return self.group_task(task)
 
 
 class MemcachedDataSingle(object):
@@ -116,61 +142,85 @@ class MemcachedDataSingle(object):
             return {"recode": 0, "redata": self.mc.stats()}
 
 
-class MemcachedManagerSingle(object):
-    """docstring for MemcachedManagerSingle"""
 
-    def __init__(self, ip, port):
-        super(MemcachedManagerSingle, self).__init__()
-        self.ip = ip
-        self.port = port
+        # elif task == "stats":
+        #     info = MemcachedDataSingle(self.ip, self.port)
+        #     return info.stats()
+        # elif task == "info":
+        #     info = MemcachedDataSingle(self.ip, self.port)
+        #     return info.stats()
+
+
+
+class MemcachedDataGroup(object):
+    """docstring for MemcachedDataGroup"""
+    def __init__(self, group=None, mc_list=None):
+        super(MemcachedDataGroup, self).__init__()
+        self.group = group
+        self.mc_list = mc_list
+
+    def get_group_data(self):
+        unit_list = []
+        if self.group:
+            info = conf_data("mc_group", self.group)
+            for i in info:
+                ip = i.split()[0]
+                port = i.split()[1]
+                unit_list.append([ip, port])
+            return unit_list
+        if self.mc_list:
+            for i in self.mc_list:
+                host = i.split()[0]
+                port = i.split()[1]
+                unit_list.append([ip, port])
+            return unit_list
+
+    def single_task(self, server, task):
+        s1 = MemcachedDataSingle(server[0], server[1])
+        # if task == 'get':
+
+        data = s1.run_task(task)
+        # data["ip"] = server[0]
+        return data
+
+    def group_task(self, task):
+        info = []
+        pool = Pool(processes=10)
+        for server in self.get_group_data():
+            info.append(pool.apply_async(self.single_task, (server, task)))
+        pool.close()
+        pool.join()
+
+        data = []
+        for i in info:
+            data.append(i.get())
+        return data
 
     def run_task(self, task):
-        server = Memcached_single(self.ip, self.port)
-        if task == "start":
-            recode = server.start()
-            if recode == 0:
-                return {"recode": recode, "redata": "success"}
-            else:
-                return {"recode": 9, "redata": "exec error"}
-        elif task == "stop":
-            recode = server.stop()
-            if recode == 0:
-                return {"recode": recode, "redata": "success"}
-            else:
-                return {"recode": 9, "redata": "exec error"}
-        elif task == "stats":
-            info = MemcachedDataSingle(self.ip, self.port)
-            return info.stats()
-        elif task == "info":
-            info = MemcachedDataSingle(self.ip, self.port)
-            return info.stats()
+        if task == "start" or task == "stop":
+            return self.group_task(task)
 
+    def get(self, key):
+        pass
 
-# class MemcachedManagerGroup(object):
-#     """docstring for MemcachedManagerGroup"""
+    def set(self, key):
+        pass
 
-#     def __init__(self, group):
-#         super(MemcachedManagerGroup, self).__init__()
-#         self.group = group
+    def delete(self, key):
+        pass
 
-#     def run_task(self, task):
-#         if task == "start":
-#             pass
-#         if task == "stop":
-#             pass
-#         if task == "reboot":
-#             pass
+    def clear(self):
+        data = []
+        for i in self.get_group_data():
+            host = i.split()[0]
+            port = i.split()[1]
+            server = MemcachedDataSingle(host, port)
+            status = server.clear_data()
+            data.append((host, port, status))
+        return data
 
+    def stats(self):
+        pass
 
-# def get_connections_sum(self):
-#     return {"recode": 0, "redata": self.mc.get_connections_sum()}
-
-# def get_mc_base_info(self):
-#     curr_connections = self.mc.get_connections_sum()
-#     mem_user_rate = self.mc.get_mem_rate()
-#     if curr_connections != 0:
-#         check_ok = 0
-#     else:
-#         check_ok = 1
-#     return { "recode": check_ok, "redata": (curr_connections, mem_user_rate)}
-
+    def info(self):
+        pass

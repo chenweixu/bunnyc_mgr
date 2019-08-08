@@ -70,11 +70,14 @@ class MonitorTask(object):
         return {"recode": 0, "redata": value}
 
     def run(self, data):
-        rtype = data.get("type")
+        types = data.get("types")
         unit = data.get("unit")
-        if rtype == "host" and unit == "uptime":
-            return self.HostUptimeData(data)
-        elif rtype == "host" and unit == "cpu":
-            return self.HostCpuData(data)
-        else:
+        if not types == "host":
             return {"recode": 1, "redata": "format error"}
+        if unit == "uptime":
+            return self.HostUptimeData(data)
+        if unit == "cpu":
+            return self.HostCpuData(data)
+
+
+        return {"recode": 1, "redata": "format error"}

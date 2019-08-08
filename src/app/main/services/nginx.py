@@ -1,7 +1,7 @@
 import re
 from app.main.conf import conf_data
-from app.main.hostshell import HostBaseCmd
-from app.main.hostshell import HostGroupCmd
+from app.main.server.hostbase import HostBaseCmd
+from app.main.server.hostgroup import HostGroupCmd
 from app.utils.NetCache import NetCache
 from app import work_log
 

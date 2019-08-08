@@ -9,18 +9,21 @@ task: shell
 arg:
 ip:
 user:
+stdout: true | False
 
 2. 命令执行-单项任务
 task: 'unit'
 arg: [cpu, mem, disk, netlistening, netss, uptime, netrxtx, vmstat]
 ip:
 user:
+stdout: true | False
 
 3. 脚本
 task: script
 arg:
 ip:
 user:
+stdout: true | False
 ======================================================
 
 ip

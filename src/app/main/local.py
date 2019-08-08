@@ -22,7 +22,7 @@ class LocalTask(object):
         if arg in conf_data('shell_unit'):
             cmd = conf_data('shell_unit', arg)
             redata = self.task.cmd(cmd)
-        elif arg in ['disk_dict', 'uptime_dict', 'mem_dict']
+        elif arg in ['disk_dict', 'uptime_dict', 'mem_dict']:
             redata = self.task.unit(cmd)
         else:
             return {"recode": 9, "redata": 'unit error'}

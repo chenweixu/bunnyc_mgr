@@ -11,16 +11,16 @@ def v2_network():
     work_log.debug(str(request.path))
     work_log.debug("request network interface, ip: %s " % (request.remote_addr))
     if request.method == "GET":
-        ipaddr = request.args.get("ip")
-        url = request.args.get("url")
+        ping_ipaddr = request.args.get("ping")
+        checkurl = request.args.get("checkurl")
 
-        if ipaddr:
+        if ping_ipaddr:
             info = NetWork()
-            data = info.ping(ipaddr)
+            data = info.ping(ping_ipaddr)
             return jsonify(data)
-        elif url:
+        elif checkurl:
             info = Service()
-            data = info.check_url(url)
+            data = info.check_url(checkurl)
             return jsonify(data)
         else:
             work_log.error(str("req format error"))
@@ -32,6 +32,7 @@ def v2_network():
             if verify_key(key) and request.json.get("obj") == "network":
                 info = NetWork()
                 data = info.run_task(request.json.get("content"))
+                work_log.info(str(data))
                 return jsonify(data)
             else:
                 work_log.error("req verify_key or obj error")

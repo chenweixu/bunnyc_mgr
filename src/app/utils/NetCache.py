@@ -21,6 +21,7 @@ class NetCache(object):
         self.r.srem(self.NginxLockSet, value)
 
     def setSmembers(self):
+        '''获取集合全部数据'''
         return self.r.smembers(self.NginxLockSet)
 
     def setDel(self):

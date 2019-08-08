@@ -1,7 +1,11 @@
 methods: get
 
 1. ping 响应
-/api/v2/network&host=10.2.1.5
+/api/v2/network&ping=10.2.1.5
+
+
+2. url探测, 获取返回码
+/api/v2/network&checkurl=http://xxx.url
 
 ==============================================================================
 

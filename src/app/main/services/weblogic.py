@@ -1,8 +1,8 @@
 import itertools
 from multiprocessing import Pool
 from app.main.conf import conf_data
-from app.main.hostshell import HostBaseCmd
-from app.main.hostshell import HostGroupCmd
+from app.main.server.hostbase import HostBaseCmd
+from app.main.server.hostgroup import HostGroupCmd
 from app.main.services.web import CheckWebInterface
 from app import work_log
 
@@ -32,9 +32,10 @@ class WeblogicManagerSingle(object):
             return [2, str(e)]
 
     def start_weblogic_single_service(self, port=None):
-        # 启动单个服务
+        '''port 为给此函数传的参数，如过没有则使用类中的端口'''
         work_log.debug("start_weblogic_single_service")
         if not port:
+            # all service
             cmd = " ".join(
                 [self.service_script, "weblogic", "start", str(int(self.port) - 17100)]
             )
@@ -64,14 +65,6 @@ class WeblogicManagerSingle(object):
             return {"recode": 0, "redata": "success"}
         else:
             return {"recode": run_data[0], "redata": run_data[1]}
-
-    def reboot_weblogic_single_service(self):
-        # 重启单个服务
-        data = self.stop_weblogic_single_service()
-        if data.get("recode") != 0:
-            return data
-        else:
-            return self.start_weblogic_single_service()
 
     def showlogaccess(self):
         # 查看访问日志
@@ -109,7 +102,7 @@ class WeblogicManagerSingle(object):
         cmd = " ".join([self.service_script, "weblogic", "start_group"])
         run_data = self._weblogic_ssh_cmd(cmd)
         if run_data[0] == 0:
-            return {"recode": run_data[0], "redata": run_data[1]}
+            return {"recode": 0, "redata": "success"}
         else:
             return {"recode": run_data[0], "redata": run_data[1]}
 
@@ -118,7 +111,7 @@ class WeblogicManagerSingle(object):
         cmd = " ".join([self.service_script, "weblogic", "stop_group"])
         run_data = self._weblogic_ssh_cmd(cmd)
         if run_data[0] == 0:
-            return {"recode": run_data[0], "redata": run_data[1]}
+            return {"recode": 0, "redata": "success"}
         else:
             return {"recode": run_data[0], "redata": run_data[1]}
 
@@ -132,8 +125,6 @@ class WeblogicManagerSingle(object):
                     return self.start_weblogic_single_service()
                 elif task == "stop":
                     return self.stop_weblogic_single_service()
-                elif task == "reboot":
-                    return self.reboot_weblogic_single_service()
                 elif task == "accesslog":
                     return self.showlogaccess()
                 elif task == "projectlog":
@@ -148,14 +139,12 @@ class WeblogicManagerSingle(object):
                 return {"recode": 2, "redata": str(e)}
 
         elif not self.port:
-            work_log.info("not port")
+            work_log.info("not port, all service")
             try:
                 if task == "start":
                     return self.start_wg_single()
                 elif task == "stop":
                     return self.stop_wg_single()
-                elif task == "reboot":
-                    return self.reboot_weblogic_single_service
                 elif task == "check":
                     return {"recode": 4, "redata": "不支持该操作"}
                 else:
@@ -260,15 +249,31 @@ class WeblogicManagerCheck(object):
     def __init__(self):
         super(WeblogicManagerCheck, self).__init__()
 
-    def get_wg_check_task(self, groupname=None):
+    def get_wg_check_url(self,ip, port):
+        return f"http://{ip}:{port}" + conf_data(
+                        "service_info", "weblogic", "weblogic_interface"
+                    )
+
+    def get_wg_single_check_task(self, ip, port=None):
+        task = []
+        if port > 17100 and port < 17107:
+            task.append(self.get_wg_check_url(ip, port))
+        if not port:
+            for vlue in conf_data("app_group").values():
+                for conf_ip,portlist in vlue.items():
+                    if ip == conf_ip:
+                        for i in portlist:
+                            url = self.get_wg_check_url(ip, i)
+                            task.append(url)
+        return task
+
+    def get_wg_group_check_task(self, groupname=None):
         if groupname:
             task_list = []
             for x, y in conf_data("app_group", groupname).items():
                 for i in y:
-                    obj = f"http://{x}:{i}" + conf_data(
-                        "service_info", "weblogic", "weblogic_interface"
-                    )
-                    task_list.append(obj)
+                    url = self.get_wg_check_url(x,i)
+                    task_list.append(url)
             return task_list
         else:
             task_list = []
@@ -276,9 +281,7 @@ class WeblogicManagerCheck(object):
             for group in group_all:
                 for host in group_all.get(group):
                     for port in group_all.get(group).get(host):
-                        url = f"http://{host}:{port}" + conf_data(
-                            "service_info", "weblogic", "weblogic_interface"
-                        )
+                        url = self.get_wg_check_url(host,port)
                         task_list.append(url)
             return task_list
 
@@ -291,6 +294,9 @@ class WeblogicManagerCheck(object):
             work_log.error(f"check wg url error: {url}")
             work_log.error(str(e))
             return [url, 1]
+
+
+
 
     def check_weblogic(self, task, processes=6):
         pool = Pool(processes)
@@ -307,13 +313,19 @@ class WeblogicManagerCheck(object):
                 data.append(vle)
         return data
 
+    def check_weblogic_single_interface(self, ip, port=None):
+        UrlList = self.get_wg_single_check_task(ip, port)
+        data = self.check_weblogic(UrlList, processes=2)
+        return {"recode": 0, "redata": data}
+
     def check_weblogic_group_interface(self, groupname=None):
-        if groupname:
-            UrlList = self.get_wg_check_task(groupname)
-            data = self.check_weblogic(UrlList, processes=10)
+        if groupname == 'all':
+            # 全部检查
+            UrlList = self.get_wg_group_check_task()
+            data = self.check_weblogic(UrlList, processes=80)
             return {"recode": 0, "redata": data}
         else:
-            UrlList = self.get_wg_check_task()
-            data = self.check_weblogic(UrlList, processes=80)
+            UrlList = self.get_wg_group_check_task(groupname)
+            data = self.check_weblogic(UrlList, processes=20)
             return {"recode": 0, "redata": data}
 
