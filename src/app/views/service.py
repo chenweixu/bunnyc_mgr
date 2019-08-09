@@ -15,6 +15,7 @@ def v2_service():
         if verify_key(key) and request.json.get("obj") == "service":
             info = Service()
             data = info.run_task(request.json.get("content"))
+            work_log.info(str(data))
             return jsonify(data)
         else:
             work_log.error("req verify_key or obj error")

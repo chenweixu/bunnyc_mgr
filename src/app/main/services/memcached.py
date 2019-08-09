@@ -21,6 +21,7 @@ class MemcachedManagerSingle(object):
         try:
             ssh = HostBaseCmd(self.ip, user=self.user)
             status = ssh.ssh_cmd(cmd)
+            work_log.info(status)
             work_log.info("_mc_ssh_cmd exec success")
             return status
         except Exception as e:
@@ -38,21 +39,19 @@ class MemcachedManagerSingle(object):
         work_log.debug("stop_mc: %s" % cmd)
         return self._mc_ssh_cmd(cmd)
 
+    def return_data(self, rebody):
+        if rebody[0] == 0:
+            return {"recode": 0, "redata": "success"}
+        else:
+            return {"recode": rebody[0], "redata": rebody[1]}
+
     def run_task(self, task):
         if task == "start":
-            recode = self.start()
-            if recode == 0:
-                return {"recode": recode, "redata": "success"}
-            else:
-                return {"recode": 9, "redata": "exec error"}
+            rebody = self.start()
+            return self.return_data(rebody)
         elif task == "stop":
-            recode = self.stop()
-            if recode == 0:
-                return {"recode": recode, "redata": "success"}
-            else:
-                return {"recode": 9, "redata": "exec error"}
-
-
+            rebody = self.stop()
+            return self.return_data(rebody)
 
 class MemcachedManagerGroup(object):
     """docstring for MemcachedManagerGroup"""
@@ -82,6 +81,7 @@ class MemcachedManagerGroup(object):
         s1 = MemcachedManagerSingle(server[0], server[1])
         data = s1.run_task(task)
         data["ip"] = server[0]
+        data["port"] = server[1]
         # if data.get("recode") != 0:
         #     data["redata"] = "error"
         # else:
@@ -103,8 +103,7 @@ class MemcachedManagerGroup(object):
 
     def run_task(self, task):
         if task == "start" or task == "stop":
-            return self.group_task(task)
-
+            return {"recode": 0, "redata": self.group_task(task)}
 
 class MemcachedDataSingle(object):
     """docstring for MemcachedDataSingle"""

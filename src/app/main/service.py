@@ -3,8 +3,10 @@ from app import work_log
 from app.main.conf import conf_data
 from app.main.services.web import CheckWebInterface
 from app.main.services.memcached import MemcachedManagerSingle
+from app.main.services.memcached import MemcachedManagerGroup
 from app.main.services.memcached import MemcachedDataSingle
 from app.main.services.nginx import NginxManager
+from app.main.nginx_acl import Nginx_Acl
 from app.main.services.weblogic import WeblogicManagerSingle
 from app.main.services.weblogic import WeblogicManagerGroup
 from app.main.services.weblogic import WeblogicManagerCheck
@@ -47,10 +49,12 @@ class Service(object):
         elif types == 'group':
             group = data.get("group")
             work_log.debug(group)
-            # if group == "all" and task == "check":
-            #     work_log.debug(f"wg check all service")
-            #     info = WeblogicManagerCheck()
-            #     return info.check_weblogic_group_interface(processes=80)
+
+            # 全部服务检查
+            if group == "all" and task == "check":
+                work_log.debug(f"wg check all service")
+                info = WeblogicManagerCheck()
+                return info.check_all_weblogic_interface()
 
             if group not in conf_data("app_group"):
                 work_log.debug(f"weblogic grou not find")
@@ -59,7 +63,7 @@ class Service(object):
             if task == "check":
                 work_log.debug(f"wg check group: {group}")
                 info = WeblogicManagerCheck()
-                return info.check_weblogic_group_interface(group)
+                return info.check_group_weblogic_interface(group)
             elif task in ["start", "stop"]:
                 work_log.debug(f"wg group: {task} {group}")
                 info = WeblogicManagerGroup(group)
@@ -75,12 +79,14 @@ class Service(object):
     def memcached(self, data):
         types = data.get("types")
         task = data.get("task")
+
         if types == 'single':
             server = data.get("server")
             port = data.get("port")
             if task in ["start", "stop"]:
                 info = MemcachedManagerSingle(server, port)
                 return info.run_task(task)
+
         if types == 'group':
             group = data.get("group")
             if group not in conf_data("mc_group"):
@@ -92,6 +98,7 @@ class Service(object):
                 return info.run_task(task)
 
             return {"recode": 1, "redata": "format error"}
+        return {"recode": 1, "redata": "format error"}
 
         # try:
 
@@ -116,52 +123,74 @@ class Service(object):
         #     return {"recode": 2, "redata": "run error"}
 
 
-    def nginx(self, data):
+    def nginx_lock(self,data):
+        task = data.get('task')
+        ip = data.get("ip")
+        if not isinstance(ip, list):
+            iplist = []
+            iplist.append(ip)
+        else:
+            iplist = ip
+
+        info = Nginx_Acl()
+
+        # if ip not in re.compile("\d+.\d+.\d+.\d+").findall(ip):
+        #     return {"recode": 2, "redata": "req format error"}
+        # 暂时停止IP地址校验，因为还没有考虑ipv6
+
+        if task == 'lock':
+            work_log.info(f"nginx task: lock, ip: {iplist}")
+            return info.lock_ip(iplist)
+
+        elif task == 'unlock':
+            work_log.info(f"nginx task: unlock, ip: {iplist}")
+            return info.unlock_ip(iplist)
+
+        elif task == "showlock":
+            work_log.info("nginx task: showlock")
+            return info.show_lock()
+        elif task == "clearlock":
+            work_log.info("nginx task: clearlock")
+            return info.clear_lock()
+        else:
+            return {"redata": 'task error', "recode": 1}
+
+    def nginx_single(self, data):
         task = data.get("task")
+        info = NginxManager()
+
+        server = data.get("server")
+        work_log.debug("nginx task: %s, server: %s " % (str(task), str(server)))
+        data = info.nginx_task(server, task)
+        return data
+
+    def nginx_shield(self, data):
+        # "shield", "cancelShield"
+        # 屏蔽/解除屏蔽-后台应用服务
+        ip = data.get("ip")
+        port = data.get("port")
+        zone = data.get("zone")
+        task = data.get("task")
+        info = NginxManager()
+        work_log.info(
+            f"nginx task: {task}, zone: {zone} ip: {ip}, port: {port}"
+        )
+        if task == "shield":
+            return info.Shield(zone, ip, port)
+        elif task == "cancelShield":
+            return info.Shield(zone, ip, port, cancel=True)
+        else:
+            return {"recode": 1, "redata": "req format task error"}
+
+    def nginx(self, data):
         try:
-            info = NginxManager()
-            if data.get("server"):
-                server = data.get("server")
-                work_log.debug(
-                    "nginx task: %s, server: %s " % (str(task), str(server))
-                )
-                data = info.nginx_task(server, task)
-                return data
-
-            elif task in ["lock", "unlock"]:
-                ip = data.get("ip")
-                # if ip not in re.compile("\d+.\d+.\d+.\d+").findall(ip):
-                #     return {"recode": 2, "redata": "req format error"}
-                # 暂时停止IP地址校验，因为还没有考虑ipv6
-                work_log.info("nginx task: %s :  ip: %s" % (str(task), str(ip)))
-                data = info.lock_ip(ip, task)
-                return data
-            elif task == "showlock":
-                # 查看锁定的公网IP
-                work_log.info("nginx task: showlock")
-                data = info.lock_ip('xxx', task)
-                # data = info.showlock()
-                return data
-            elif task == "clearlock":
-                # 查看锁定的公网IP
-                work_log.info("nginx task: clearlock")
-                data = info.lock_ip('xxx', task)
-                # data = info.showlock()
-                return data
-
-            elif task in ["shield", "cancelShield"]:
-                # 屏蔽/解除屏蔽-后台应用服务
-                ip = data.get("ip")
-                port = data.get("port")
-                zone = data.get("zone")
-                work_log.info(
-                    f"nginx task: {task},zone: {zone} ip: {ip}, port: {port}"
-                )
-                if task == "shield":
-                    data = info.Shield(zone, ip, port)
-                elif task == "cancelShield":
-                    data = info.Shield(zone, ip, port, cancel=True)
-                return data
+            types = data.get("types")
+            if types == 'lock':
+                return self.nginx_lock(data)
+            if types == 'single':
+                return self.nginx_single(data)
+            if types == 'shield':
+                return self.nginx_shield(data)
             else:
                 work_log.error("recode: 1, req format error")
                 return {"recode": 1, "redata": "req format error"}

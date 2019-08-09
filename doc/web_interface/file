@@ -1,3 +1,13 @@
+下载-服务器-临时目录
+
+/api/v2/downfile/<filename>
+
+#===================================================================
+
+'obj': 'file',
+'content': {}
+
+
 1. 上传-服务器
 task: 'file_upload'
 file:
@@ -11,8 +21,10 @@ task: 'file_upload'
 file:
 
 4. 下载-指定服务器
-task: 'file_down'
+task: 'remote_file_down'
 file:
+ip:
+user:
 
 5. 上传-多个服务器
 task: 'file_upload'

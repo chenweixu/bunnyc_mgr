@@ -16,6 +16,7 @@ def v2_monitor():
         if verify_key(key) and request.json.get("obj") == "monitor":
             info = MonitorTask()
             data = info.run(request.json.get("content"))
+            work_log.info(str(data))
             return jsonify(data)
         else:
             work_log.error("format error")

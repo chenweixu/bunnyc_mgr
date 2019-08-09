@@ -14,11 +14,11 @@ req_url = app_url + "/api/v2/service"
 json_headers = {"content-type": "application/json"}
 
 
-class WeblogicOne(object):
-    """docstring for WeblogicOne"""
+class MemcachedOne(object):
+    """docstring for MemcachedOne"""
 
     def __init__(self, ip, port=None):
-        super(WeblogicOne, self).__init__()
+        super(MemcachedOne, self).__init__()
         self.ip = ip
         self.port = port
 
@@ -27,7 +27,7 @@ class WeblogicOne(object):
             "key": "c1c2",
             "obj": "service",
             "content": {
-                "unit": "weblogic",
+                "unit": "memcached",
                 "types": 'single',
                 "task": task,
                 "server": self.ip,
@@ -39,42 +39,34 @@ class WeblogicOne(object):
         print(r.text)
 
 
-class WenlogicGroup(object):
-    """docstring for WenlogicGroup"""
+class MemcachedGroup(object):
+    """docstring for MemcachedGroup"""
 
     def __init__(self, group):
-        super(WenlogicGroup, self).__init__()
+        super(MemcachedGroup, self).__init__()
         self.group = group
 
     def run_task(self, task):
         mess = {
             "key": "c1c2",
             "obj": "service",
-            "content": {"task": task, "unit": "weblogic", "group": self.group},
+            "content": {
+                "unit": "memcached",
+                "types": 'group',
+                "task": task,
+                "group": self.group
+            },
         }
         r = requests.post(req_url, data=json.dumps(mess), headers=json_headers)
         print("http status------task: %s --->> %s" % (task, r.status_code))
         print(r.text)
 
 
-w1 = WeblogicOne("10.2.1.67", 17101)
+# w1 = MemcachedOne("10.2.1.67", 21101)
 # w1.run_task('start')
 # w1.run_task('stop')
-# w1.run_task('accesslog')
-# w1.run_task('projectlog')
-w1.run_task('check')
 
-# w1 = WeblogicOne("10.2.1.67")
-# w1.run_task('start')
-# w1.run_task('stop')
-# w1.run_task('check')
-
-# w2 = WeblogicHost('10.2.1.67')
-# w2.run_task('start')
-# w2.run_task('stop')
-# w2.run_task('check')
-
-# w3 = WenlogicGroup("dmz1")
+w3 = MemcachedGroup("test")
 # w3.run_task('start')
 # w3.run_task('stop')
-# w3.run_task('check')
+

@@ -15,16 +15,21 @@ class MonitorTask(object):
         # current_time = time.strftime('%Y-%m-%d %H:%M:%S')
         old_time = time.strftime("%Y-%m-%d_%X", time.localtime(time.time() - 3600))
 
-        abc = (
-            db.session.query(
-                func.date_format(t_host_cpu.ctime, "%H:%i:%s").label("ctime"),
-                t_host_cpu.ld_1,
-                t_host_cpu.ld_2,
-                t_host_cpu.ld_3,
+        try:
+            abc = (
+                db.session.query(
+                    func.date_format(t_host_cpu.ctime, "%H:%i:%s").label("ctime"),
+                    t_host_cpu.ld_1,
+                    t_host_cpu.ld_2,
+                    t_host_cpu.ld_3,
+                )
+                .filter(t_host_cpu.ip == ip, t_host_cpu.ctime > old_time)
+                .all()
             )
-            .filter(t_host_cpu.ip == ip, t_host_cpu.ctime > old_time)
-            .all()
-        )
+        except Exception as e:
+            work_log.error('select db HostUptimeData error')
+            work_log.error(str(e))
+            return {"recode": 9, "redata": str(e)}
 
         x_name = []
         ld_1 = []
@@ -49,14 +54,19 @@ class MonitorTask(object):
         # current_time = time.strftime('%Y-%m-%d %H:%M:%S')
         old_time = time.strftime("%Y-%m-%d_%X", time.localtime(time.time() - 3600))
 
-        abc = (
-            db.session.query(
-                func.date_format(t_host_cpu.ctime, "%H:%i:%s").label("ctime"),
-                t_host_cpu.cpu,
+        try:
+            abc = (
+                db.session.query(
+                    func.date_format(t_host_cpu.ctime, "%H:%i:%s").label("ctime"),
+                    t_host_cpu.cpu,
+                )
+                .filter(t_host_cpu.ip == ip, t_host_cpu.ctime > old_time)
+                .all()
             )
-            .filter(t_host_cpu.ip == ip, t_host_cpu.ctime > old_time)
-            .all()
-        )
+        except Exception as e:
+            work_log.error('select db HostCpuData error')
+            work_log.error(str(e))
+            return {"recode": 9, "redata": str(e)}
 
         x_name = []
         cpu = []

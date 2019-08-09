@@ -9,8 +9,20 @@ gunicorn run:app -c gunicorn.conf -t 120
 # api test
 curl -i -d '{"ip": "127.0.0.1","port": "8000","sip": "127.0.0.1","task": "check_port"}' http://127.0.0.1:9002/api/v1/network
 
-curl -i 'http://127.0.0.1:9002/api/v1/sms/send?phone=15001010101&body=theishaha'
-curl -i 'http://127.0.0.1:9002/api/v1/sms/send?phone=15001010101,15001010101&body=theishaha'
+#===================================================================
+# sms
+curl -i 'http://127.0.0.1:9002/api/v2/sms?phone=15001010101&body=theishaha'
+curl -i 'http://127.0.0.1:9002/api/v2/sms?phone=15001010101,15001010101&body=theishaha'
+
+
+curl -i 'http://127.0.0.1:9002/api/v2/sms?phone=15001010101&body=%E6%9C%8D%E5%8A%A1%E5%99%A8error'
+
+curl -i 'http://10.2.1.5:9002/api/v2/sms?phone=183010101,15001010101&body=server_error:10.0.2.1,disk_free_not_space'
+
+curl -G --data-urlencode 'phone=183010101,15001010101' --data-urlencode 'body=【服务器故障】10.0.2.1故障，请及时检查处理' 'http://10.2.1.5:9002/api/v2/sms'
+#===================================================================
+
+
 
 curl -i http://127.0.0.1:9002/api/v1/network?host=127.0.0.1
 
@@ -42,13 +54,13 @@ curl -i -X POST -H 'Content-type':'application/json'  -d {\"task\": \"checkgroup
 
 
 
-curl 'http://127.0.0.1:9002/api/v2/sms/send?phone=15001010101&body=%E6%9C%8D%E5%8A%A1%E5%99%A8error'
-
-curl -i 'http://10.2.1.5:9002/api/v2/sms/send?phone=183010101,15001010101&body=server_error:10.0.2.1,disk_free_not_space'
-
-curl -G --data-urlencode 'phone=183010101,15001010101' --data-urlencode 'body=【服务器故障】10.0.2.1故障，请及时检查处理' 'http://10.2.1.5:9002/api/v2/sms/send'
 
 
 # cmdb
 curl http://10.2.1.5:9002/api/v2/cmdb/host
 curl http://10.2.1.5:9002/api/v2/logdbram
+
+
+# file down
+curl -i 'http://127.0.0.1:9002/api/v2/downfile/testdownfile.log'
+wget http://127.0.0.1:9002/api/v2/downfile/testdownfile.log

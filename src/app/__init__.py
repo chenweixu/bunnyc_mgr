@@ -22,12 +22,14 @@ work_log = My_log(log_file, log_level).get_log()
 db = SQLAlchemy(app)
 
 from app.views import apiv2
-# from app.views import local
-# from app.views import host
-# from app.views import network
-# from app.views import nginx_acl
-# from app.views import monitor
-# from app.views import file
-# from app.views import service
+from app.views import local
+from app.views import host
+from app.views import cmdb
+from app.views import network
+from app.views import nginx_acl
+from app.views import monitor
 from app.views import sms
+from app.views import file
+from app.views import service
+
 # from app.views import apitest

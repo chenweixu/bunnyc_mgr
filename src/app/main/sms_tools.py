@@ -29,6 +29,7 @@ class Sms_tools(object):
         try:
             work_log.info(url)
             work_log.info(mobile_list)
+            work_log.info(content)
             client = Client(url)
         except Exception as e:
             work_log.error("link sms webservice interface url error")

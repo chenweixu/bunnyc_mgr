@@ -14,7 +14,6 @@ def sms_send():
         if not phone:
             return "error", 404
         else:
-            work_log.debug('----1')
             body = request.args.get("body")
             work_log.info(str(body))
 

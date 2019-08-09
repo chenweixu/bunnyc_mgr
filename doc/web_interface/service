@@ -12,6 +12,9 @@ types: single
 task: [start, stop, reload, show_access_log, show_error_log,
     clear_access_log, clear_error_log
     ]
+server:
+
+后续做组的nginx管理
 
 2. nginx lock
 unit: nginx
@@ -19,12 +22,16 @@ types: lock
 task: "lock", "ulock", "showlock" "clearlock"
 ip:
 
+
+只针对DMZ域
+
 3. nginx 屏蔽后台服务
 unit: nginx
 types: shield
-task: "shield", "cancel"
+task: "shield", "cancelShield"
 ip:
 port: 无端口则是针对主机
+zone:
 
 ==============================================================================
 # memcached

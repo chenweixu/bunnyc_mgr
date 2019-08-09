@@ -14,6 +14,7 @@ def v2_host():
         if verify_key(key) and request.json.get("obj") == "host":
             info = HostTask(request.json.get("content"))
             data = info.run()
+            work_log.info(str(data))
             return jsonify(data)
         else:
             work_log.error("req verify_key or obj error")
@@ -31,6 +32,7 @@ def v2_hosts():
         if verify_key(key) and request.json.get("obj") == "hosts":
             info = HostsTask(request.json.get("content"))
             data = info.run()
+            work_log.info(str(data))
             return jsonify(data)
         else:
             work_log.error("req verify_key or obj error")

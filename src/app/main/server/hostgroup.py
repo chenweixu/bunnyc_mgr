@@ -21,15 +21,16 @@ class HostGroupCmd(object):
         try:
             ssh = HostBaseCmd(host, self.user)
             data = ssh.ssh_cmd(cmd, stdout=stdout)
+            data.append(host)
             return data
         except Exception as e:
             work_log.error(str(e))
-            return [2, str(e)]
-
+            return [2, str(e), host]
 
     def run_cmd_task(self, arg, stdout=False):
         pool = Pool(processes=self.processes)
         info = []
+        work_log.debug(str(self.hostlist))
         for host in self.hostlist:
             info.append(pool.apply_async(self._ssh_cmd, (host, arg, stdout)))
         pool.close()
@@ -38,8 +39,21 @@ class HostGroupCmd(object):
         data = []
         for i in info:
             data.append(i.get())
-        work_log.info(str(data))
         return data
+
+    # def run(self, cmd, processes=8):
+    #     pool = Pool(processes=processes)
+    #     info = []
+    #     work_log.debug(str(self.hostlist))
+    #     for host in self.hostlist:
+    #         info.append(pool.apply_async(self._ssh_cmd, (host, cmd)))
+    #     pool.close()
+    #     pool.join()
+
+    #     data = []
+    #     for i in info:
+    #         data.append(i.get())
+    #     return data
 
 
     def run_unit_task(self, arg, stdout=False):
@@ -59,16 +73,3 @@ class HostGroupCmd(object):
 
 
 
-    def run(self, cmd, processes=8):
-        pool = Pool(processes=processes)
-        info = []
-        work_log.debug(str(self.hostlist))
-        for host in self.hostlist:
-            info.append(pool.apply_async(self._ssh_cmd, (host, cmd)))
-        pool.close()
-        pool.join()
-
-        data = []
-        for i in info:
-            data.append(i.get())
-        return data

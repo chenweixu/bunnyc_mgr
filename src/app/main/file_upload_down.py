@@ -1,6 +1,6 @@
 import os
 from app.utils.mylog import My_log
-from app.main.hostshell import HostBaseCmd
+from app.main.server.hostbase import HostBaseCmd
 from app.main.conf import conf_data
 from app import work_log
 
@@ -30,19 +30,42 @@ class UpDownFile(HostBaseCmd):
             work_log.error(str(e))
             return False
 
+class DownRemoteFile(object):
+    """docstring for DownRemoteFile"""
+    def __init__(self, data):
+        super(DownRemoteFile, self).__init__()
+        self.data = data
 
-# class UpDownFile(object):
-#     """docstring for UpDownFile"""
+    def down(self):
+        try:
+            ip = self.data.get("ip")
+            file = self.data.get("file")
+            user = self.data.get("user")
+            if self.data.get("task") != 'remote_file_down':
+                return {"recode": 1, "redata": "req arg error"}
 
-#     def __init__(self, ip, user):
-#         super(UpDownFile, self).__init__()
-#         self.ip = ip
-#         self.user = user
+            work_log.info(f"down file, ip: {ip}, filename: {file}, user: {user}")
 
-#     def upload(self, src, dest):
-#         work_log.info(f'upload: {src} -> {dest} ')
-#         session = HostBaseCmd(self.ip, self.user, scp=True)
-#         session.ssh_file_put(src, dest)
+            tmp_dir = conf_data("work_tmp_dir")
+            filename = os.path.basename(file)
+            local_tmp = os.path.join(tmp_dir, filename)
 
-#     def down(self, src):
+            info = UpDownFile(ip, user)
+            data = info.down(file, local_tmp)
+            if data:
+                return {"recode": 0, "redata": f"api/v2/downfile/{filename}"}
+            else:
+                return {"recode": 2, "redata": "file not fount"}
+
+        except Exception as e:
+            work_log.error("down file run error")
+            work_log.error(str(e))
+            return {"recode": 9, "redata": str(e)}
+
+# class UpLoadFile(object):
+#     """docstring for UpLoadFile"""
+#     def __init__(self, data):
+#         super(UpLoadFile, self).__init__()
+
+#     def upload(self):
 #         pass
