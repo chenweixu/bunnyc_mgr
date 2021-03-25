@@ -2,7 +2,7 @@ Flask==1.1.1
 Jinja2==2.10
 # Markdown==2.6.11
 pymemcache==2.1.0
-PyYAML==5.1.2
+PyYAML==5.4
 requests==2.22.0
 paramiko==2.6.0
 suds-jurko==0.6
