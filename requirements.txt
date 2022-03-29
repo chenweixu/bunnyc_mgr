@@ -4,7 +4,7 @@ Jinja2==2.10
 pymemcache==2.1.0
 PyYAML==5.1.2
 requests==2.22.0
-paramiko==2.6.0
+paramiko==2.10.1
 suds-jurko==0.6
 # Flask-Cors==3.0.6
 redis==3.3.6
